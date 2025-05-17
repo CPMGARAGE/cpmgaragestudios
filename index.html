@@ -1,79 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CPMGARAGESTUDIOS</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet" />
-</head>
-<body>
-  <canvas id="matrix"></canvas>
-  <header>
-    <h1 class="neon">CPMGARAGESTUDIOS</h1>
-  </header>
-  <main class="button-grid">
-    <a href="daily-generator.html" class="neon-button">Daily Currency Generator</a>
-    <a href="gg-scripts.html" class="neon-button">GG Scripts</a>
-    <a href="gg-learning.html" class="neon-button">GG Learning Studio</a>
-    <a href="gg-writer.html" class="neon-button">GG Script Writer</a>
-    <a href="cpm-methods.html" class="neon-button">CPM Methods</a>
-    <a href="termux.html" class="neon-button">Termux Services</a>
-    <a href="mod-apks.html" class="neon-button">CPM Mod APKs</a>
-    <a href="trusted-sellers.html" class="neon-button">Trusted Sellers</a>
-    <a href="scammer-news.html" class="neon-button">Scammer News</a>
-    <a href="testimonials.html" class="neon-button">Testimonials</a>
-  </main>
-  <footer>
-    <a href="https://instagram.com/_cpmgarage" target="_blank" class="ig-link">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" />
-      @_cpmgarage
-    </a>
-  </footer>
-  <script>
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    const matrix = "1010101111000010101010011101010101";
-    const fontSize = 14;
-    let columns;
-    let drops;
-
-    function resizeMatrixCanvas() {
-      canvas.width = window.innerWidth;
-      const fullHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.body.clientHeight,
-        document.documentElement.clientHeight
-      );
-      canvas.height = fullHeight;
-      columns = Math.floor(canvas.width / fontSize);
-      drops = Array(columns).fill(1);
-    }
-
-    function draw() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#00faff";
-      ctx.font = fontSize + "px Courier New";
-      ctx.textBaseline = "top";
-      for (let i = 0; i < drops.length; i++) {
-        const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
-          drops[i] = 0;
-        }
-        drops[i]++;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPMGARAGESTUDIOS</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
       }
-    }
 
-    window.addEventListener("resize", resizeMatrixCanvas);
-    window.addEventListener("load", () => {
-      resizeMatrixCanvas();
-      setInterval(draw, 120);
-    });
-  </script>
-</body>
+      html,
+      body {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: black;
+        font-family: "Orbitron", sans-serif;
+        overflow-x: hidden;
+        color: #0ff;
+        z-index: 1;
+      }
+
+      canvas#matrix {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.3;
+      }
+
+      header {
+        text-align: center;
+        padding: 2rem 1rem 1rem;
+      }
+
+      h1.neon {
+        font-size: 2.5rem;
+        color: #0ff;
+        text-shadow: 0 0 5px #0ff, 0 0 15px #0ff, 0 0 30px #08f;
+        animation: flicker 1.5s infinite alternate;
+      }
+
+      @keyframes flicker {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.85;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .button-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-bottom: 2rem;
+      }
+
+      .neon-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 300px;
+        height: 80px;
+        margin: 10px 0;
+        color: #0ff;
+        font-size: 1rem;
+        text-decoration: none;
+        border: 2px solid #0ff;
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .neon-button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        border: 2px solid #0ff;
+        box-shadow: 0 0 10px #0ff;
+        opacity: 0;
+        animation: border-flicker 2s infinite;
+      }
+
+      .neon-button:hover::before {
+        opacity: 1;
+      }
+
+      .neon-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px #0ff, 0 0 25px #0ff;
+      }
+
+      @keyframes border-flicker {
+        0%,
+        100% {
+          opacity: 0.8;
+        }
+        50% {
+          opacity: 0.2;
+        }
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .ig-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #f0f;
+        box-shadow: 0 0 10px #f0f, 0 0 20px #f0f;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .ig-link img {
+        width: 18px;
+        height: 18px;
+      }
+
+      .ig-link:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="matrix"></canvas>
+    <header>
+      <h1 class="neon">CPMGARAGESTUDIOS</h1>
+    </header>
+
+    <main class="button-grid">
+      <a href="daily-generator.html" class="neon-button"
+        >Daily Currency Generator</a
+      >
+      <a href="gg-scripts.html" class="neon-button">GG Scripts</a>
+      <a href="gg-learning.html" class="neon-button">GG Learning Studio</a>
+      <a href="gg-writer.html" class="neon-button">GG Script Writer</a>
+      <a href="cpm-methods.html" class="neon-button">CPM Methods</a>
+      <a href="termux.html" class="neon-button">Termux Services</a>
+      <a href="mod-apks.html" class="neon-button">CPM Mod APKs</a>
+      <a href="trusted-sellers.html" class="neon-button">Trusted Sellers</a>
+      <a href="scammer-news.html" class="neon-button">Scammer News</a>
+      <a href="testimonials.html" class="neon-button">Testimonials</a>
+    </main>
+
+    <footer>
+      <a
+        href="https://instagram.com/_cpmgarage"
+        target="_blank"
+        class="ig-link"
+      >
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
+          alt="Instagram"
+        />
+        @_cpmgarage
+      </a>
+    </footer>
+
+    <script>
+      const canvas = document.getElementById("matrix");
+      const ctx = canvas.getContext("2d");
+
+      const matrix = "1010101111000010101010011101010101";
+      const fontSize = 14;
+      let columns;
+      let drops;
+
+      function resizeMatrixCanvas() {
+        canvas.width = window.innerWidth;
+
+        const fullHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight,
+          document.body.offsetHeight,
+          document.documentElement.offsetHeight,
+          document.body.clientHeight,
+          document.documentElement.clientHeight
+        );
+
+        canvas.height = fullHeight;
+
+        columns = Math.floor(canvas.width / fontSize);
+        drops = Array(columns).fill(1);
+      }
+
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00faff";
+        ctx.font = fontSize + "px Courier New";
+        ctx.textBaseline = "top";
+        for (let i = 0; i < drops.length; i++) {
+          const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      window.addEventListener("resize", resizeMatrixCanvas);
+      window.addEventListener("load", () => {
+        resizeMatrixCanvas();
+        setInterval(draw, 120);
+      });
+    </script>
+  </body>
 </html>
