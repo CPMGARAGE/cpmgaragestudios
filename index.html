@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CPMGARAGESTUDIOS</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+  <header>
+    <h1 class="neon">CPMGARAGESTUDIOS</h1>
+  </header>
+  <main class="button-grid">
+    <a href="daily-generator.html" class="neon-button">Daily Currency Generator</a>
+    <a href="gg-scripts.html" class="neon-button">GG Scripts</a>
+    <a href="gg-learning.html" class="neon-button">GG Learning Studio</a>
+    <a href="gg-writer.html" class="neon-button">GG Script Writer</a>
+    <a href="cpm-methods.html" class="neon-button">CPM Methods</a>
+    <a href="termux.html" class="neon-button">Termux Services</a>
+    <a href="mod-apks.html" class="neon-button">CPM Mod APKs</a>
+    <a href="trusted-sellers.html" class="neon-button">Trusted Sellers</a>
+    <a href="scammer-news.html" class="neon-button">Scammer News</a>
+    <a href="testimonials.html" class="neon-button">Testimonials</a>
+  </main>
+  <footer>
+    <a href="https://instagram.com/_cpmgarage" target="_blank" class="ig-link">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" />
+      @_cpmgarage
+    </a>
+  </footer>
+  <script>
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    const matrix = "1010101111000010101010011101010101";
+    const fontSize = 14;
+    let columns;
+    let drops;
+
+    function resizeMatrixCanvas() {
+      canvas.width = window.innerWidth;
+      const fullHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight,
+        document.body.clientHeight,
+        document.documentElement.clientHeight
+      );
+      canvas.height = fullHeight;
+      columns = Math.floor(canvas.width / fontSize);
+      drops = Array(columns).fill(1);
+    }
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#00faff";
+      ctx.font = fontSize + "px Courier New";
+      ctx.textBaseline = "top";
+      for (let i = 0; i < drops.length; i++) {
+        const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    window.addEventListener("resize", resizeMatrixCanvas);
+    window.addEventListener("load", () => {
+      resizeMatrixCanvas();
+      setInterval(draw, 120);
+    });
+  </script>
+</body>
+</html>
