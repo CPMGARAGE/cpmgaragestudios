@@ -56,20 +56,19 @@
 </head>
 <body style="position: relative; margin: 0; padding: 0; background: black; font-family: 'Orbitron', sans-serif; color: #0ff; overflow-x: hidden;">
   <canvas id="matrix" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.3;"></canvas>
-  <header style="text-align: center; position: relative; z-index: 1;">
-  <h1 class="neon">Submit Scam Report</h1>
-</header>
+  
 
-  <div style="position: relative; z-index: 1; padding: 2rem; display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+  <div style="position: relative; z-index: 1; padding: 2rem; display: flex; justify-content: center; align-items: start; min-height: 80vh; flex-direction: column; align-items: center;">
+  <h1 style="font-size: 2rem; text-align: center; margin-bottom: 1.5rem; color: #0ff; text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;">Submit Scam Report</h1>
   <form class="scam-form" style="width: 100%; max-width: 600px; padding: 1rem; background-color: rgba(0, 0, 0, 0.6); border-radius: 10px; box-shadow: 0 0 15px #0ff;" action="https://formspree.io/f/mwpoydrb" method="POST" enctype="multipart/form-data">
     <input type="text" name="user" placeholder="Your Instagram Username" required />
     <textarea name="scammer" placeholder="Scammer Username and what they did..." required></textarea>
-    <input type="file" name="evidence" accept="image/*" disabled title="File uploads are not supported on this plan." />
+    
     <button type="submit">Submit Report</button>
   </form>
 </div>
 
-<div style="text-align: center; margin-top: 2rem; position: relative; z-index: 1; display: flex; justify-content: center;">
+<div style="text-align: center; margin-top: 1rem; position: relative; z-index: 1; display: flex; justify-content: center;">
   <a href="scammer-news.html" style="display: inline-block; padding: 1rem 2rem; font-size: 1rem; background-color: #0ff; color: black; border-radius: 8px; text-decoration: none; box-shadow: 0 0 10px #0ff, 0 0 20px #0ff; font-family: Orbitron; transition: all 0.3s ease; transform: scale(1);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"">Back to Scammer List</a>
 </div>
 
