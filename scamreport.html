@@ -60,11 +60,11 @@
   <h1 class="neon">Submit Scam Report</h1>
 </header>
 
-  <div style="position: relative; z-index: 1; padding: 2rem; display: flex; justify-content: center;">
-  <form class="scam-form" action="https://formspree.io/f/mwpoydrb" method="POST" enctype="multipart/form-data">
+  <div style="position: relative; z-index: 1; padding: 2rem; display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+  <form class="scam-form" style="width: 100%; max-width: 600px; padding: 1rem; background-color: rgba(0, 0, 0, 0.6); border-radius: 10px; box-shadow: 0 0 15px #0ff;" action="https://formspree.io/f/mwpoydrb" method="POST" enctype="multipart/form-data">
     <input type="text" name="user" placeholder="Your Instagram Username" required />
     <textarea name="scammer" placeholder="Scammer Username and what they did..." required></textarea>
-    <input type="file" name="evidence" accept="image/*" />
+    <input type="file" name="evidence" accept="image/*" disabled title="File uploads are not supported on this plan." />
     <button type="submit">Submit Report</button>
   </form>
 </div>
@@ -110,7 +110,7 @@
 <audio id="bg-music" autoplay loop preload="auto">
   <source src="assets/audio/music.mp3" type="audio/mpeg" />
 </audio>
-<div id="thankyou-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(0, 0, 0, 0.9); border: 2px solid #0ff; border-radius: 10px; padding: 2rem; text-align: center; color: #0ff; font-family: Orbitron; z-index: 9999; box-shadow: 0 0 20px #0ff;">
+<div id="thankyou-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(0, 0, 0, 0.9); border: 2px solid #0ff; border-radius: 10px; padding: 2rem; text-align: center; color: #0ff; font-family: Orbitron; z-index: 9999; box-shadow: 0 0 20px #0ff; max-width: 90vw; width: 400px;" >
   <div style="font-size: 2rem; margin-bottom: 1rem;">✅</div>
   <div>Thank you for your report!</div>
 </div>
