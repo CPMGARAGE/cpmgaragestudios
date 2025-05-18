@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tesla Mod</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: black;
+        font-family: "Orbitron", sans-serif;
+        color: #0ff;
+        overflow-x: hidden;
+      }
+      canvas#matrix {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.3;
+      }
+      .content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 2rem;
+        animation: flipIn 0.8s ease-out;
+      }
+      @keyframes flipIn {
+        from {
+          transform: rotateY(360deg) scale(0);
+          opacity: 0;
+        }
+        to {
+          transform: rotateY(0deg) scale(1);
+          opacity: 1;
+        }
+      }
+      h1 {
+        font-size: 2rem;
+        text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+      }
+      .description {
+        max-width: 600px;
+        margin: 1rem auto;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+      .gallery {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 2rem 0;
+      }
+      .gallery img {
+        max-width: 300px;
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #0ff;
+        transition: transform 0.3s ease;
+      }
+      .gallery img:hover {
+        transform: scale(1.05);
+      }
+      .download-button {
+        display: inline-block;
+        padding: 1rem 2rem;
+        margin-top: 2rem;
+        font-size: 1.2rem;
+        color: #000;
+        background-color: #0ff;
+        text-decoration: none;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+        transition: all 0.3s ease-in-out;
+        animation: pulseGlow 2s infinite;
+      }
+      .download-button:hover {
+        transform: scale(1.1) rotate(1deg);
+        box-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+      }
+      @keyframes pulseGlow {
+        0%,
+        100% {
+          box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+        }
+        50% {
+          box-shadow: 0 0 25px #0ff, 0 0 45px #0ff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="matrix"></canvas>
+    <div class="content">
+      <h1>Plane Mod APK 🛩️</h1>
+      <div
+        class="description"
+        style="text-align: left; margin-left: auto; margin-right: auto"
+      >
+        <ul style="list-style-type: none; padding-left: 0">
+          <li>Fly Away With This Crazy Plane Mod 🛩</li>
+          <li>Pros:</li>
+          <li>- App Downloads Separate From OG CPM</li>
+          <li>- Online Multiplayer Active, You Can join your friends In APK</li>
+          <li>- Bring Back Some CPM Nostalgia With The Original Map 🔥</li>
+          <li>Cons:</li>
+          <li>- Can’t Log Into Existing Account</li>
+          <li>- Start with $0 👎</li>
+          <li>Services:</li>
+          <li>50MCash + 500kCoins Available $1 via Cashapp/Paypal</li>
+          <li>GG Plane Services $2 Full Service:</li>
+          <ul>
+            <li>- UFO (Hide Wheels)</li>
+            <li>- HP/Shift Speed</li>
+            <li>-Optional Flying Car Option Available In Paid Script</li>
+          </ul>
+        </ul>
+      </div>
+      <div class="gallery">
+        <img src="assets/images/plane1.jpg" alt="Plane Pic 1" />
+      </div>
+      <a
+        class="download-button"
+        href="https://pixeldrain.com/u/TtP1qGHu"
+        target="_blank"
+        >Download Plane Mod</a
+      >
+    </div>
+
+    <script>
+      const canvas = document.getElementById("matrix");
+      const ctx = canvas.getContext("2d");
+      const matrix = "1010101111000010101010011101010101";
+      const fontSize = 14;
+      let columns;
+      let drops;
+      function resizeMatrixCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = document.body.scrollHeight;
+        columns = Math.floor(canvas.width / fontSize);
+        drops = Array(columns).fill(1);
+      }
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00faff";
+        ctx.font = fontSize + "px Courier New";
+        ctx.textBaseline = "top";
+        for (let i = 0; i < drops.length; i++) {
+          const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+      window.addEventListener("resize", resizeMatrixCanvas);
+      window.addEventListener("load", () => {
+        resizeMatrixCanvas();
+        setInterval(draw, 120);
+      });
+    </script>
+    <audio id="bg-music" autoplay loop preload="auto">
+      <source src="assets/audio/music.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+  </body>
+</html>
