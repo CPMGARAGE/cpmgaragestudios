@@ -127,7 +127,7 @@
       .ig-link {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
         background: rgba(0, 0, 0, 0.7);
         padding: 0.5rem 1rem;
         border-radius: 8px;
@@ -145,6 +145,76 @@
       .ig-link:hover {
         transform: scale(1.1);
         box-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
+      }
+
+      .ib-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: rgb(119, 0, 255);
+        box-shadow: 0 0 10px rgb(136, 0, 255), 0 0 20px rgb(170, 0, 255);
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .ib-link img {
+        width: 18px;
+        height: 18px;
+      }
+
+      .ib-link:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgb(162, 0, 255), 0 0 40px rgb(144, 0, 255);
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1rem;
+        padding: 2rem;
+        justify-items: center;
+        z-index: 2;
+        position: relative;
+      }
+
+      .gallery img {
+        width: 100%;
+        max-width: 250px;
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #0ff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .gallery img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px #0ff;
+      }
+      .telegram-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.1rem;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #0088cc;
+        box-shadow: 0 0 10px #0088cc, 0 0 20px #0088cc;
+        transition: transform 0.3s, box-shadow 0.3s;
+        margin-bottom: 0.1rem;
+      }
+
+      .telegram-link img {
+        width: 18px;
+        height: 18px;
+      }
+
+      .telegram-link:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px #0088cc, 0 0 40px #0088cc;
       }
     </style>
   </head>
@@ -170,17 +240,50 @@
     </main>
 
     <footer>
-      <a
-        href="https://instagram.com/_cpmgarage"
-        target="_blank"
-        class="ig-link"
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.7rem;
+        "
       >
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
-          alt="Instagram"
-        />
-        @_cpmgarage
-      </a>
+        <a
+          href="https://t.me/cpmgaragegg"
+          target="_blank"
+          class="telegram-link"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
+            alt="Telegram"
+          />
+          @_₵₱₥₲₳Ɽ₳₲Ɇ₲₲
+        </a>
+        <a
+          href="https://instagram.com/_cpmgarage"
+          target="_blank"
+          class="ig-link"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
+            alt="Instagram"
+          />
+
+          @ _₵₱₥₲₳Ɽ₳₲Ɇ
+        </a>
+
+        <a
+          href="https://instagram.com/phantomworksgaming"
+          target="_blank"
+          class="ib-link"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Phantomworks.jpg"
+            alt="Instagram"
+          />
+          @𝕻𝖍𝖆𝖓𝖙𝖔𝖒 𝖂𝖔𝖗𝖐𝖘
+        </a>
+      </div>
     </footer>
 
     <script>
