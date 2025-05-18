@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moto Mod</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: black;
+        font-family: "Orbitron", sans-serif;
+        color: #0ff;
+        overflow-x: hidden;
+      }
+      canvas#matrix {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.3;
+      }
+      .content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 2rem;
+        animation: flipIn 0.8s ease-out;
+      }
+      @keyframes flipIn {
+        from {
+          transform: rotateY(360deg) scale(0);
+          opacity: 0;
+        }
+        to {
+          transform: rotateY(0deg) scale(1);
+          opacity: 1;
+        }
+      }
+      h1 {
+        font-size: 2rem;
+        text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+      }
+      .description {
+        max-width: 600px;
+        margin: 1rem auto;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+      .gallery {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 2rem 0;
+      }
+      .gallery img {
+        max-width: 300px;
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #0ff;
+        transition: transform 0.3s ease;
+      }
+      .gallery img:hover {
+        transform: scale(1.05);
+      }
+      .download-button {
+        display: inline-block;
+        padding: 1rem 2rem;
+        margin-top: 2rem;
+        font-size: 1.2rem;
+        color: #000;
+        background-color: #0ff;
+        text-decoration: none;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+        transition: all 0.3s ease-in-out;
+        animation: pulseGlow 2s infinite;
+      }
+      .download-button:hover {
+        transform: scale(1.1) rotate(1deg);
+        box-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+      }
+      @keyframes pulseGlow {
+        0%,
+        100% {
+          box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+        }
+        50% {
+          box-shadow: 0 0 25px #0ff, 0 0 45px #0ff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="matrix"></canvas>
+    <div class="content">
+      <h1>Motorcycle Mod APK 🚲</h1>
+      <div
+        class="description"
+        style="text-align: left; margin-left: auto; margin-right: auto"
+      >
+        <ul style="list-style-type: none; padding-left: 0">
+          <li>Awesome Motorcycle Mod 🔥</li>
+          <li>Pros:</li>
+          <li>- App Downloads Separate From OG CPM</li>
+          <li>- Online Multiplayer Active, You Can join your friends In APK</li>
+          <li>- Bring Back Some CPM Nostalgia With The Original Map 🔥</li>
+          <li>-All Cars Unlocked</li>
+          <li>-All Cars Police</li>
+          <li>-50m Cash</li>
+          <li>-40k Coins</li>
+          <li>-W16 Unlocked</li>
+          <li>-Smoke Unlocked</li>
+          <li>-Paid Rims Unlocked</li>
+          <li>-Horns Unlocked</li>
+          <li>-House 3 Unlocked</li>
+          <li>-Lamborghini Included</li>
+          <li>-Plus: Includes 10+ Mod Cars</li>
+          <li>Cons:</li>
+          <li>- Can’t Log Into Existing Account</li>
+        </ul>
+      </div>
+      <div class="gallery">
+        <img src="assets/images/moto1.jpg" alt="Moto Pic 1" />
+        <img src="assets/images/moto2.jpg" alt="Moto Pic 2" />
+        <img src="assets/images/moto3.jpg" alt="Moto Pic 3" />
+      </div>
+      <a
+        class="download-button"
+        href="https://pixeldrain.com/u/b1DHLd3P"
+        target="_blank"
+        >Download Motorcycle Mod</a
+      >
+    </div>
+
+    <script>
+      const canvas = document.getElementById("matrix");
+      const ctx = canvas.getContext("2d");
+      const matrix = "1010101111000010101010011101010101";
+      const fontSize = 14;
+      let columns;
+      let drops;
+      function resizeMatrixCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = document.body.scrollHeight;
+        columns = Math.floor(canvas.width / fontSize);
+        drops = Array(columns).fill(1);
+      }
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00faff";
+        ctx.font = fontSize + "px Courier New";
+        ctx.textBaseline = "top";
+        for (let i = 0; i < drops.length; i++) {
+          const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+      window.addEventListener("resize", resizeMatrixCanvas);
+      window.addEventListener("load", () => {
+        resizeMatrixCanvas();
+        setInterval(draw, 120);
+      });
+    </script>
+    <audio id="bg-music" autoplay loop preload="auto">
+      <source src="assets/audio/music.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+  </body>
+</html>
