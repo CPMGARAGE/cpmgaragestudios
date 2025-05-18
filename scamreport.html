@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit Scam Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      animation: slideIn 0.8s ease-out;
+    }
+    @keyframes slideIn {
+      from {
+        transform: rotateY(180deg) scale(0.3);
+        opacity: 0;
+      }
+      to {
+        transform: rotateY(0deg) scale(1);
+        opacity: 1;
+      }
+    }
+    form.scam-form {
+      max-width: 600px;
+      margin: 3rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 2;
+      position: relative;
+    }
+    form.scam-form input,
+    form.scam-form textarea {
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-family: Orbitron, sans-serif;
+    }
+    form.scam-form button {
+      padding: 1rem;
+      font-size: 1.1rem;
+      background: #0ff;
+      border: none;
+      border-radius: 10px;
+      font-family: Orbitron;
+      color: #000;
+      box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    form.scam-form button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+    }
+  </style>
+</head>
+<body style="position: relative; margin: 0; padding: 0; background: black; font-family: 'Orbitron', sans-serif; color: #0ff; overflow-x: hidden;">
+  <canvas id="matrix" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.3;"></canvas>
+  <header style="text-align: center; position: relative; z-index: 1;">
+  <h1 class="neon">Submit Scam Report</h1>
+</header>
+
+  <div style="position: relative; z-index: 1; padding: 2rem; display: flex; justify-content: center;">
+  <form class="scam-form" action="https://formspree.io/f/mwpoydrb" method="POST" enctype="multipart/form-data">
+    <input type="text" name="user" placeholder="Your Instagram Username" required />
+    <textarea name="scammer" placeholder="Scammer Username and what they did..." required></textarea>
+    <input type="file" name="evidence" accept="image/*" />
+    <button type="submit">Submit Report</button>
+  </form>
+</div>
+
+<div style="text-align: center; margin-top: 2rem; position: relative; z-index: 1; display: flex; justify-content: center;">
+  <a href="scammer-news.html" style="display: inline-block; padding: 1rem 2rem; font-size: 1rem; background-color: #0ff; color: black; border-radius: 8px; text-decoration: none; box-shadow: 0 0 10px #0ff, 0 0 20px #0ff; font-family: Orbitron; transition: all 0.3s ease; transform: scale(1);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"">Back to Scammer List</a>
+</div>
+
+  <script>
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    const matrix = "1010101111000010101010011101010101";
+    const fontSize = 14;
+    let columns;
+    let drops;
+    function resizeMatrixCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = document.body.scrollHeight;
+      columns = Math.floor(canvas.width / fontSize);
+      drops = Array(columns).fill(1);
+    }
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#00faff";
+      ctx.font = fontSize + "px Courier New";
+      ctx.textBaseline = "top";
+      for (let i = 0; i < drops.length; i++) {
+        const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+    window.addEventListener("resize", resizeMatrixCanvas);
+    window.addEventListener("load", () => {
+      resizeMatrixCanvas();
+      setInterval(draw, 120);
+    });
+  </script>
+<audio id="bg-music" autoplay loop preload="auto">
+  <source src="assets/audio/music.mp3" type="audio/mpeg" />
+</audio>
+<div id="thankyou-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: rgba(0, 0, 0, 0.9); border: 2px solid #0ff; border-radius: 10px; padding: 2rem; text-align: center; color: #0ff; font-family: Orbitron; z-index: 9999; box-shadow: 0 0 20px #0ff;">
+  <div style="font-size: 2rem; margin-bottom: 1rem;">✅</div>
+  <div>Thank you for your report!</div>
+</div>
+<script>
+  document.querySelector("form.scam-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const popup = document.getElementById("thankyou-popup");
+    popup.style.display = "block";
+    setTimeout(() => {
+      popup.style.transform = "translate(-50%, -50%) scale(1)";
+    }, 10);
+    setTimeout(() => {
+      e.target.submit();
+    }, 2000);
+  });
+</script>
+</body>
+</html>
