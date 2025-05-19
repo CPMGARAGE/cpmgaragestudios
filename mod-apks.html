@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>CPMMODAPKS</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap"
       rel="stylesheet"
     />
     <style>
@@ -219,31 +219,30 @@
     </style>
   </head>
   <body>
-    <canvas id="matrix"></canvas>
+    <canvas id="matrix"> </canvas>
     <header>
       <h1 class="neon">CPM MOD APK's</h1>
     </header>
-
     <main class="button-grid">
-      <a href="tesla-mod.html" class="neon-button">Tesla Mod APK</a>
-      <a href="cybertruck-mod.html" class="neon-button">CyberTruck Mod APK</a>
-      <a href="plane-mod.html" class="neon-button">Plane Mod APK</a>
-      <a href="helicopter-mod.html" class="neon-button">Helicopter Mod APK</a>
-      <a href="bannana-mod.html" class="neon-button">Bannana Mod APK</a>
-      <a href="moto-mod.html" class="neon-button">Motorcycle Mod APK</a>
+      <a class="neon-button" href="tesla-mod.html"> Tesla Mod APK </a>
+      <a class="neon-button" href="cybertruck-mod.html"> CyberTruck Mod APK </a>
+      <a class="neon-button" href="plane-mod.html"> Plane Mod APK </a>
+      <a class="neon-button" href="helicopter-mod.html"> Helicopter Mod APK </a>
+      <a class="neon-button" href="bannana-mod.html"> Bannana Mod APK </a>
+      <a class="neon-button" href="moto-mod.html"> Motorcycle Mod APK </a>
     </main>
-
     <footer>
-      <div
-        style="
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.7rem;
-        "
-      ></div>
+      <div style="display: flex; flex-direction: column; align-items: center; margin-top: -1rem;">
+      <div style="text-align: center; margin-top: 0.5rem"
+        <a
+          class="neon-button"
+          href="#"
+          onclick="flipToIndex()"
+          style="width: 300px; height: 60px; padding: 0.5rem 1rem; font-size: 0.95rem; margin: 0 auto;">
+          Back to Main Menu
+        </a>
+      </div>
     </footer>
-
     <script>
       const canvas = document.getElementById("matrix");
       const ctx = canvas.getContext("2d");
@@ -293,9 +292,20 @@
         setInterval(draw, 120);
       });
     </script>
-    <audio id="bg-music" autoplay loop preload="auto">
+    <audio autoplay="" id="bg-music" loop="" preload="auto">
       <source src="assets/audio/music.mp3" type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
+    <script>
+      function flipToIndex() {
+        document.body.style.transition =
+          "transform 0.6s ease-out, opacity 0.6s ease-out";
+        document.body.style.transform = "rotateY(90deg) scale(0.5)";
+        document.body.style.opacity = "0";
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 500);
+      }
+    </script>
   </body>
 </html>
