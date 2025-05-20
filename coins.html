@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GG Learning Studio - Lesson 1</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: black;
+        font-family: "Orbitron", sans-serif;
+        color: #0ff;
+        overflow-x: hidden;
+      }
+      canvas#matrix {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.3;
+      }
+      header {
+        text-align: center;
+        padding: 2rem 1rem 1rem;
+        position: relative;
+        z-index: 1;
+      }
+      h1.neon {
+        font-size: clamp(1.5rem, 5vw, 2.5rem);
+        color: #0ff;
+        text-shadow: 0 0 5px #0ff, 0 0 15px #0ff, 0 0 30px #08f;
+        animation: flicker 1.5s infinite alternate;
+      }
+      @keyframes flicker {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.85;
+        }
+      }
+      .video-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        z-index: 1;
+        position: relative;
+      }
+      video {
+        width: 90%;
+        max-width: 720px;
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px #0ff;
+        transform: rotateX(0deg);
+        transition: transform 0.3s ease;
+      }
+      video:hover {
+        transform: rotateX(3deg);
+      }
+      .desc-box {
+        margin: 2rem auto;
+        max-width: 600px;
+        padding: 1rem;
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #0ff;
+        background-color: rgba(0, 0, 0, 0.4);
+        text-align: center;
+        z-index: 1;
+        position: relative;
+      }
+      .neon-button {
+        display: block;
+        width: fit-content;
+        margin: 2rem auto;
+        padding: 0.75rem 1.5rem;
+        color: #0ff;
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 1rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 10px #0ff;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+      .neon-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px #0ff;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="matrix"></canvas>
+    <header>
+      <h1 class="neon">
+        GG Learning Studio<br />
+        - Coins
+      </h1>
+    </header>
+    <div class="video-container">
+      <video id="tutorialVideo" controls>
+        <source src="assets/videos/coins.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <div class="desc-box">
+      <p>
+        Welcome to the Coins tutorial please follow all steps closely. Its very
+        common for this to crash after coins have been edited just log in and
+        they will be there. <br />Feel free to ask me any questions @_cpmgarage
+        on instagram<br />
+        Stay Tuned For More🚀
+      </p>
+    </div>
+    <a href="#" onclick="goBack()" class="neon-button">Back to Currency Menu</a>
+
+    <script>
+      const canvas = document.getElementById("matrix");
+      const ctx = canvas.getContext("2d");
+      const matrix = "1010101111000010101010011101010101";
+      const fontSize = 14;
+      let columns, drops;
+
+      function resizeMatrixCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = document.body.scrollHeight;
+        columns = Math.floor(canvas.width / fontSize);
+        drops = Array(columns).fill(1);
+      }
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00faff";
+        ctx.font = fontSize + "px Courier New";
+        ctx.textBaseline = "top";
+        for (let i = 0; i < drops.length; i++) {
+          const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+      window.addEventListener("resize", resizeMatrixCanvas);
+      window.addEventListener("load", () => {
+        resizeMatrixCanvas();
+        setInterval(draw, 120);
+      });
+
+      function goBack() {
+        document.body.style.transition = "opacity 0.6s ease-out";
+        document.body.style.opacity = "0";
+        setTimeout(() => {
+          window.location.href = "gg-moneyhub.html";
+        }, 600);
+      }
+    </script>
+  </body>
+</html>
