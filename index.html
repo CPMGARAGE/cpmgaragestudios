@@ -216,9 +216,65 @@
         transform: scale(1.1);
         box-shadow: 0 0 20px #0088cc, 0 0 40px #0088cc;
       }
+      .update-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(3px);
+      }
+      .update-content {
+        background: black;
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        padding: 2rem;
+        max-width: 90%;
+        width: 400px;
+        box-shadow: 0 0 15px #0ff;
+        text-align: center;
+        color: #0ff;
+        position: relative;
+      }
+      .update-content h2 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        color: #0ff;
+        text-shadow: 0 0 10px #0ff;
+      }
+      .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        color: #0ff;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .close-modal:hover {
+        transform: scale(1.2);
+      }
     </style>
   </head>
   <body>
+    <div id="updateModal" class="update-modal" style="display: none">
+      <div class="update-content">
+        <div class="close-modal" onclick="closeUpdateModal()">&times;</div>
+        <h2>📢 Update Log - May 2025</h2>
+        <p>
+          + Color Codes section added<br />
+          + Donations section added<br />
+          + Design Services section added<br />
+          + Site performance optimized for mobile<br />
+          + New pages: Q&A and How To Start Coming Soon<br />
+        </p>
+      </div>
+    </div>
     <canvas id="matrix"></canvas>
     <header>
       <h1 class="neon">CPMGARAGESTUDIOS</h1>
@@ -231,12 +287,16 @@
       <a href="gg-scripts.html" class="neon-button">GG Scripts</a>
       <a href="gg-learning.html" class="neon-button">GG Learning Studio</a>
       <a href="gg-writer.html" class="neon-button">GG Script Writer</a>
+      <a href="design.html" class="neon-button">Design Services</a>
       <a href="cpm-methods.html" class="neon-button">CPM Methods</a>
       <a href="termux.html" class="neon-button">Termux Services</a>
       <a href="mod-apks.html" class="neon-button">CPM Mod APKs</a>
       <a href="trusted-sellers.html" class="neon-button">Trusted Sellers</a>
+      <a href="colorcodes.html" class="neon-button">Color Codes</a>
       <a href="scammer-news.html" class="neon-button">Scammer News</a>
-      <a href="testimonials.html" class="neon-button">Testimonials</a>
+      <a href="donations.html" class="neon-button">Donations</a>
+      <a href="questions.html" class="neon-button">Q&A's with @_cpmgarage</a>
+      <a href="other.html" class="neon-button">Other Content</a>
     </main>
 
     <footer>
@@ -334,8 +394,20 @@
         resizeMatrixCanvas();
         setInterval(draw, 120);
       });
+      function closeUpdateModal() {
+        document.getElementById("updateModal").style.display = "none";
+        localStorage.setItem("updateModalSeen", new Date().toDateString());
+      }
+
+      window.addEventListener("load", () => {
+        const lastSeen = localStorage.getItem("updateModalSeen");
+        const today = new Date().toDateString();
+        if (lastSeen !== today) {
+          document.getElementById("updateModal").style.display = "flex";
+        }
+      });
     </script>
-    <audio id="bg-music" autoplay loop>
+    <audio id="bg-music" autoplay loop preload="auto">
       <source src="assets/audio/music.mp3" type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
