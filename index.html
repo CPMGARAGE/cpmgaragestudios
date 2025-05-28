@@ -262,6 +262,34 @@
     </style>
   </head>
   <body>
+    <!-- INTRO VIDEO -->
+    <div
+      id="intro-video-wrapper"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 99999;
+        background: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <video
+        id="intro-video"
+        autoplay
+        muted
+        playsinline
+        style="width: 100%; height: 100%; object-fit: cover"
+      >
+        <source src="assets/video/intro.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
     <div id="updateModal" class="update-modal" style="display: none">
       <div class="update-content">
         <div class="close-modal" onclick="closeUpdateModal()">&times;</div>
@@ -411,5 +439,27 @@
       <source src="assets/audio/music.mp3" type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        const audio = document.getElementById("bg-music");
+        const wrapper = document.getElementById("intro-video-wrapper");
+        const video = document.getElementById("intro-video");
+        if (!sessionStorage.getItem("introPlayed")) {
+          video.addEventListener("ended", () => {
+            wrapper.style.display = "none";
+            audio.play();
+          });
+          setTimeout(() => {
+            wrapper.style.display = "none";
+            audio.play();
+          }, 6500);
+          sessionStorage.setItem("introPlayed", "true");
+        } else {
+          wrapper.style.display = "none";
+          audio.play();
+        }
+      });
+    </script>
   </body>
 </html>
