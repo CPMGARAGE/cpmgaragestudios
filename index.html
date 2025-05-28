@@ -448,16 +448,16 @@
         if (!sessionStorage.getItem("introPlayed")) {
           video.addEventListener("ended", () => {
             wrapper.style.display = "none";
-            audio.play();
+            setTimeout(() => audio.play(), 5000);
           });
           setTimeout(() => {
             wrapper.style.display = "none";
-            audio.play();
+            setTimeout(() => audio.play(), 5000);
           }, 6500);
           sessionStorage.setItem("introPlayed", "true");
         } else {
           wrapper.style.display = "none";
-          audio.play();
+          setTimeout(() => audio.play(), 5000);
         }
       });
     </script>
