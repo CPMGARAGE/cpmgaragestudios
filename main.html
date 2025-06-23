@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coming Soon</title>
+    <title>CPMGARAGESTUDIOS</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
       rel="stylesheet"
@@ -216,22 +216,115 @@
         transform: scale(1.1);
         box-shadow: 0 0 20px #0088cc, 0 0 40px #0088cc;
       }
+      .update-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(3px);
+      }
+      .update-content {
+        background: black;
+        border: 2px solid #0ff;
+        border-radius: 10px;
+        padding: 2rem;
+        max-width: 90%;
+        width: 400px;
+        box-shadow: 0 0 15px #0ff;
+        text-align: center;
+        color: #0ff;
+        position: relative;
+      }
+      .update-content h2 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        color: #0ff;
+        text-shadow: 0 0 10px #0ff;
+      }
+      .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        color: #0ff;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .close-modal:hover {
+        transform: scale(1.2);
+      }
     </style>
   </head>
   <body>
+    <!-- INTRO VIDEO -->
+    <div
+      id="intro-video-wrapper"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 99999;
+        background: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <video
+        id="intro-video"
+        autoplay
+        muted
+        playsinline
+        style="width: 100%; height: 100%; object-fit: cover"
+      >
+        <source src="assets/video/intro.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <div id="updateModal" class="update-modal" style="display: none">
+      <div class="update-content">
+        <div class="close-modal" onclick="closeUpdateModal()">&times;</div>
+        <h2>📢 Update Log - May 2025</h2>
+        <p>
+          + Color Codes section added<br />
+          + Donations section added<br />
+          + Design Services section added<br />
+          + Site performance optimized for mobile<br />
+          + New pages: Q&A and How To Start Coming Soon<br />
+        </p>
+      </div>
+    </div>
     <canvas id="matrix"></canvas>
     <header>
-      <h1 class="neon">Coming Soon</h1>
+      <h1 class="neon">CPMGARAGESTUDIOS</h1>
     </header>
 
     <main class="button-grid">
-      <a
-        href="#"
-        onclick="flipToIndex()"
-        class="neon-button"
-        style="width: auto; padding: 1rem 2rem; margin-top: 1rem"
-        >Back to Main Menu</a
+      <a href="daily-generator.html" class="neon-button"
+        >Daily Currency Generator</a
       >
+      <a href="gg-scripts.html" class="neon-button">GG Scripts</a>
+      <a href="gg-learning.html" class="neon-button">GG Learning Studio</a>
+      <a href="gg-writer.html" class="neon-button">GG Script Writer</a>
+      <a href="design.html" class="neon-button">Design Services</a>
+      <a href="cpm-methods.html" class="neon-button">CPM Methods</a>
+      <a href="termux.html" class="neon-button">Termux Services</a>
+      <a href="mod-apks.html" class="neon-button">CPM Mod APKs</a>
+      <a href="trusted-sellers.html" class="neon-button">Trusted Sellers</a>
+      <a href="colorcodes.html" class="neon-button">Color Codes</a>
+      <a href="scammer-news.html" class="neon-button">Scammer News</a>
+      <a href="donations.html" class="neon-button">Donations</a>
+      <a href="questions.html" class="neon-button">Q&A's with @_cpmgarage</a>
+      <a href="other.html" class="neon-button">Other Content</a>
     </main>
 
     <footer>
@@ -242,7 +335,43 @@
           align-items: center;
           gap: 0.7rem;
         "
-      ></div>
+      >
+        <a
+          href="https://t.me/cpmgaragegg"
+          target="_blank"
+          class="telegram-link"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
+            alt="Telegram"
+          />
+          @_₵₱₥₲₳Ɽ₳₲Ɇ₲₲
+        </a>
+        <a
+          href="https://instagram.com/_cpmgarage"
+          target="_blank"
+          class="ig-link"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
+            alt="Instagram"
+          />
+
+          @ _₵₱₥₲₳Ɽ₳₲Ɇ
+        </a>
+
+        <a
+          href="https://instagram.com/phantomworksgaming"
+          target="_blank"
+          class="ib-link"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Phantomworks.jpg"
+            alt="Instagram"
+          />
+          @𝕻𝖍𝖆𝖓𝖙𝖔𝖒 𝖂𝖔𝖗𝖐𝖘
+        </a>
+      </div>
     </footer>
 
     <script>
@@ -293,21 +422,44 @@
         resizeMatrixCanvas();
         setInterval(draw, 120);
       });
-    </script>
-    <script>
-      function flipToIndex() {
-        document.body.style.transition =
-          "transform 0.6s ease-out, opacity 0.6s ease-out";
-        document.body.style.transform = "rotateY(90deg) scale(0.5)";
-        document.body.style.opacity = "0";
-        setTimeout(() => {
-          window.location.href = "main.html";
-        }, 500);
+      function closeUpdateModal() {
+        document.getElementById("updateModal").style.display = "none";
+        localStorage.setItem("updateModalSeen", new Date().toDateString());
       }
+
+      window.addEventListener("load", () => {
+        const lastSeen = localStorage.getItem("updateModalSeen");
+        const today = new Date().toDateString();
+        if (lastSeen !== today) {
+          document.getElementById("updateModal").style.display = "flex";
+        }
+      });
     </script>
     <audio id="bg-music" autoplay loop preload="auto">
       <source src="assets/audio/music.mp3" type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        const audio = document.getElementById("bg-music");
+        const wrapper = document.getElementById("intro-video-wrapper");
+        const video = document.getElementById("intro-video");
+        if (!sessionStorage.getItem("introPlayed")) {
+          video.addEventListener("ended", () => {
+            wrapper.style.display = "none";
+            audio.play();
+          });
+          setTimeout(() => {
+            wrapper.style.display = "none";
+            audio.play();
+          }, 6500);
+          sessionStorage.setItem("introPlayed", "true");
+        } else {
+          wrapper.style.display = "none";
+          audio.play();
+        }
+      });
+    </script>
   </body>
 </html>
