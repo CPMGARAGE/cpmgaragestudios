@@ -461,7 +461,7 @@
             document.body.style.opacity = '0';
             setTimeout(() => {
                 console.log('Intro complete - redirect to main site');
-                // window.location.href = 'index.html'; // Uncomment and change to your main page
+                // window.location.href = 'main.html'; // Uncomment and change to your main page
             }, 1000);
         }, 18000);
 
@@ -477,7 +477,7 @@
                 document.body.style.opacity = '0';
                 setTimeout(() => {
                     console.log('Skipped to main site');
-                    // window.location.href = 'main.html';
+                    window.location.href = 'main.html';
                 }, 500);
             }
             setTimeout(() => clickCount = 0, 1000);
