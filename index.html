@@ -215,6 +215,160 @@
             opacity: 0.9;
         }
 
+        /* Fingerprint Scanner */
+        .fingerprint-scanner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 60;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            cursor: pointer;
+        }
+
+        .scanner-content {
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .scanner-title {
+            color: #0ff;
+            font-size: clamp(18px, 4vw, 28px);
+            font-family: "Courier Prime", monospace;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px #0ff;
+        }
+
+        .fingerprint-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            border: 3px solid #0ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 0 30px #0ff,
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+            animation: scannerPulse 2s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        .fingerprint-pattern {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            opacity: 0.6;
+        }
+
+        .fingerprint-pattern svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .fingerprint-ridge {
+            fill: none;
+            stroke: #0ff;
+            stroke-width: 1.5;
+            opacity: 0.8;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #0ff, transparent);
+            animation: scanMovement 2s linear infinite;
+            opacity: 0;
+        }
+
+        .scanner-text {
+            color: #0ff;
+            font-size: clamp(14px, 3vw, 18px);
+            font-family: "Courier Prime", monospace;
+            margin-bottom: 20px;
+            animation: textBlink 1.5s ease-in-out infinite;
+        }
+
+        .tap-instruction {
+            color: #0ff;
+            font-size: clamp(12px, 2.5vw, 16px);
+            font-family: "Courier Prime", monospace;
+            opacity: 0.7;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        /* Scanner Animations */
+        @keyframes scannerPulse {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 30px #0ff,
+                    inset 0 0 30px rgba(0, 255, 255, 0.1);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 50px #0ff,
+                    0 0 80px #0ff,
+                    inset 0 0 50px rgba(0, 255, 255, 0.2);
+            }
+        }
+
+        @keyframes scanMovement {
+            0% { 
+                top: 0%; 
+                opacity: 0; 
+            }
+            10% { 
+                opacity: 1; 
+            }
+            90% { 
+                opacity: 1; 
+            }
+            100% { 
+                top: 100%; 
+                opacity: 0; 
+            }
+        }
+
+        @keyframes textBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.3; }
+        }
+
+        .scanner-active .scan-line {
+            opacity: 1;
+        }
+
+        .scanner-success {
+            animation: scannerSuccess 0.5s ease-out forwards;
+        }
+
+        @keyframes scannerSuccess {
+            0% { 
+                border-color: #0ff;
+                box-shadow: 0 0 30px #0ff;
+            }
+            100% { 
+                border-color: #00ff00;
+                box-shadow: 0 0 50px #00ff00;
+            }
+        }
+
         /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -280,6 +434,20 @@
                 width: 95%;
                 padding: 20px;
             }
+
+            .fingerprint-container {
+                width: 150px;
+                height: 150px;
+            }
+
+            .fingerprint-pattern {
+                width: 105px;
+                height: 105px;
+            }
+
+            .scanner-title {
+                font-size: clamp(16px, 5vw, 24px);
+            }
         }
 
         @media (max-width: 480px) {
@@ -300,6 +468,15 @@
                 font-size: clamp(8px, 2.5vw, 11px);
                 margin: 8px 0;
             }
+
+            .fingerprint-container {
+                width: 120px;
+                height: 120px;
+            }
+
+            .fingerprint-icon {
+                font-size: 50px;
+            }
         }
     </style>
 </head>
@@ -317,6 +494,55 @@
             <div class="logo-section">
                 <div class="logo">CPMGARAGESTUDIOS</div>
             </div>
+
+    <!-- Fingerprint Scanner -->
+    <div class="fingerprint-scanner" id="fingerprintScanner">
+        <div class="scanner-content">
+            <div class="scanner-title">FORENSICS ANALYSIS REQUIRED</div>
+            <div class="fingerprint-container" id="fingerprintContainer">
+                <div class="fingerprint-pattern">
+                    <svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Outer ridges -->
+                        <ellipse cx="70" cy="70" rx="65" ry="65" class="fingerprint-ridge"/>
+                        <ellipse cx="70" cy="70" rx="58" ry="58" class="fingerprint-ridge"/>
+                        <ellipse cx="70" cy="70" rx="51" ry="51" class="fingerprint-ridge"/>
+                        <ellipse cx="70" cy="70" rx="44" ry="44" class="fingerprint-ridge"/>
+                        <ellipse cx="70" cy="70" rx="37" ry="37" class="fingerprint-ridge"/>
+                        <ellipse cx="70" cy="70" rx="30" ry="30" class="fingerprint-ridge"/>
+                        <ellipse cx="70" cy="70" rx="23" ry="23" class="fingerprint-ridge"/>
+                        <ellipse cx="70" cy="70" rx="16" ry="16" class="fingerprint-ridge"/>
+                        <ellipse cx="70" cy="70" rx="9" ry="9" class="fingerprint-ridge"/>
+                        
+                        <!-- Whorl patterns -->
+                        <path d="M 35 70 Q 50 50, 70 60 Q 90 50, 105 70 Q 90 90, 70 80 Q 50 90, 35 70" class="fingerprint-ridge"/>
+                        <path d="M 40 70 Q 55 55, 70 65 Q 85 55, 100 70 Q 85 85, 70 75 Q 55 85, 40 70" class="fingerprint-ridge"/>
+                        <path d="M 45 70 Q 60 60, 70 70 Q 80 60, 95 70 Q 80 80, 70 70 Q 60 80, 45 70" class="fingerprint-ridge"/>
+                        
+                        <!-- Center spiral -->
+                        <path d="M 70 70 Q 75 65, 80 70 Q 75 75, 70 70" class="fingerprint-ridge"/>
+                        
+                        <!-- Additional ridge lines for realism -->
+                        <path d="M 20 45 Q 45 35, 70 45 Q 95 35, 120 45" class="fingerprint-ridge"/>
+                        <path d="M 20 95 Q 45 105, 70 95 Q 95 105, 120 95" class="fingerprint-ridge"/>
+                        <path d="M 45 20 Q 55 45, 65 70 Q 55 95, 45 120" class="fingerprint-ridge"/>
+                        <path d="M 95 20 Q 85 45, 75 70 Q 85 95, 95 120" class="fingerprint-ridge"/>
+                        
+                        <!-- Minutiae points (small dots) -->
+                        <circle cx="52" cy="48" r="1" fill="#0ff"/>
+                        <circle cx="88" cy="52" r="1" fill="#0ff"/>
+                        <circle cx="85" cy="88" r="1" fill="#0ff"/>
+                        <circle cx="55" cy="92" r="1" fill="#0ff"/>
+                        <circle cx="70" cy="35" r="1" fill="#0ff"/>
+                        <circle cx="35" cy="70" r="1" fill="#0ff"/>
+                        <circle cx="105" cy="70" r="1" fill="#0ff"/>
+                    </svg>
+                </div>
+                <div class="scan-line"></div>
+            </div>
+            <div class="scanner-text" id="scannerStatus">BIOMETRIC VERIFICATION NEEDED</div>
+            <div class="tap-instruction">TAP SCREEN TO VERIFY AND PROCEED</div>
+        </div>
+    </div>
 
             <!-- Terminal Section -->
             <div class="terminal-section">
@@ -450,6 +676,48 @@
                     line.style.animation = 'typeIn 0.8s ease-out forwards';
                 }, index * 600);
             });
+
+            // Show fingerprint scanner after payload completes
+            setTimeout(() => {
+                showFingerprintScanner();
+            }, 6000); // After all code lines are done
+        }
+
+        function showFingerprintScanner() {
+            const payloadWindow = document.getElementById('payloadWindow');
+            const fingerprintScanner = document.getElementById('fingerprintScanner');
+            
+            // Hide payload and show scanner
+            payloadWindow.style.opacity = '0';
+            setTimeout(() => {
+                payloadWindow.style.display = 'none';
+                fingerprintScanner.style.display = 'flex';
+                fingerprintScanner.style.animation = 'slideIn 0.8s ease-out forwards';
+                
+                // Start scanning animation
+                document.getElementById('fingerprintContainer').classList.add('scanner-active');
+            }, 500);
+        }
+
+        function handleFingerprintScan() {
+            const container = document.getElementById('fingerprintContainer');
+            const status = document.getElementById('scannerStatus');
+            const scanner = document.getElementById('fingerprintScanner');
+            
+            // Change to success state
+            container.classList.add('scanner-success');
+            status.textContent = 'BIOMETRIC VERIFIED - ACCESS GRANTED';
+            status.style.color = '#00ff00';
+            
+            // Redirect after verification
+            setTimeout(() => {
+                scanner.style.transition = 'opacity 1s ease-out';
+                scanner.style.opacity = '0';
+                setTimeout(() => {
+                    console.log('Fingerprint verified - entering main site');
+                    window.location.href = 'main.html';
+                }, 1000);
+            }, 2000);
         }
 
         // Start the sequence
@@ -463,7 +731,7 @@
                 console.log('Intro complete - redirect to main site');
                 // window.location.href = 'main.html'; // Uncomment and change to your main page
             }, 1000);
-        }, 18000);
+        }, 30000);
 
         // Resize handler
         window.addEventListener('resize', resizeCanvas);
