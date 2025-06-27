@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -44,6 +43,13 @@
 
       h1.neon {
         font-size: clamp(1.5rem, 5vw, 2.5rem);
+        color: #0ff;
+        text-shadow: 0 0 5px #0ff, 0 0 15px #0ff, 0 0 30px #08f;
+        animation: flicker 1.5s infinite alternate;
+      }
+      
+      h2.neon {
+        font-size: clamp(.5rem, 5vw, 1.5rem);
         color: #0ff;
         text-shadow: 0 0 5px #0ff, 0 0 15px #0ff, 0 0 30px #08f;
         animation: flicker 1.5s infinite alternate;
@@ -260,25 +266,51 @@
       .close-modal:hover {
         transform: scale(1.2);
       }
+      
+      .modal-link {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.8rem 1.5rem;
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #0ff;
+        border-radius: 8px;
+        color: #0ff;
+        text-decoration: none;
+        font-family: "Orbitron", sans-serif;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+      }
+      
+      .modal-link:hover {
+        background: #0ff;
+        color: black;
+        box-shadow: 0 0 20px #0ff;
+        transform: scale(1.05);
+      }
     </style>
   </head>
   <body>
     <div id="updateModal" class="update-modal" style="display: none">
       <div class="update-content">
         <div class="close-modal" onclick="closeUpdateModal()">&times;</div>
-        <h2>📢 Update Log - May 2025</h2>
+        <h2>📢 Update Log - June 2025</h2>
         <p>
-          + Color Codes section added<br />
-          + Donations section added<br />
+          + Release of CPMGARAGESTUDIOS<br />
+          + Cutting Edge GG Tools added<br />
           + Design Services section added<br />
           + Site performance optimized for mobile<br />
-          + New pages: Q&A and How To Start Coming Soon<br />
+          + Daily Raffles Coming Soon!<br />
         </p>
+        <a href="coming_soon.html" class="modal-link">
+          🚀 View Full Updates & Coming Soon
+        </a>
       </div>
     </div>
     <canvas id="matrix"></canvas>
     <header>
       <h1 class="neon">CPMGARAGESTUDIOS</h1>
+        <h2 class="neon">Home of the Underground Community</h2>
     </header>
 
     <main class="button-grid">
@@ -298,6 +330,7 @@
       <a href="donations.html" class="neon-button">Donations</a>
       <a href="questions.html" class="neon-button">Q&A's with @_cpmgarage</a>
       <a href="jobs.html" class="neon-button">Collabs/Jobs</a>
+      <a href="coming_soon.html" class="neon-button">Updates/Info</a>
       <a href="other.html" class="neon-button">Other Content</a>
     </main>
 
