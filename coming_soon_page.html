@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon - CPMGARAGESTUDIOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            position: relative;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: black;
+            font-family: "Orbitron", sans-serif;
+            overflow-x: hidden;
+            color: #0ff;
+        }
+
+        canvas#matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .bg-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.08;
+            animation: logo-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes logo-pulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.05;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 0.12;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid #0ff;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #0ff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid #0ff;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background: #0ff;
+            color: black;
+            box-shadow: 0 0 15px #0ff;
+        }
+
+        h1.neon {
+            font-size: clamp(1.8rem, 6vw, 3rem);
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 40px #08f;
+            animation: pulse-glow 2s infinite alternate;
+            margin: 0;
+            font-weight: 900;
+        }
+
+        .subtitle {
+            font-size: clamp(0.8rem, 3vw, 1.2rem);
+            color: #0ff;
+            text-shadow: 0 0 5px #0ff;
+            margin: 0.5rem 0 0 0;
+            animation: flicker 1.5s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 40px #08f; }
+            100% { text-shadow: 0 0 20px #0ff, 0 0 30px #0ff, 0 0 60px #08f; }
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .news-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        .news-toggle {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #0ff;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .news-toggle::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .news-toggle:hover::before {
+            left: 100%;
+        }
+
+        .news-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .toggle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.5rem;
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff;
+            font-weight: 700;
+        }
+
+        .toggle-icon {
+            font-size: 1.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .news-toggle.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .news-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            padding: 0;
+        }
+
+        .news-toggle.active .news-content {
+            max-height: 2000px;
+            padding-top: 2rem;
+        }
+
+        .news-scroll {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .news-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .news-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .news-scroll::-webkit-scrollbar-thumb {
+            background: #0ff;
+            border-radius: 10px;
+            box-shadow: 0 0 5px #0ff;
+        }
+
+        .news-scroll::-webkit-scrollbar-thumb:hover {
+            background: #08f;
+        }
+
+        .news-item {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid #0ff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .news-item:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .news-item.featured {
+            border-color: #0ff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .news-item.help-wanted {
+            border-color: #0ff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            background: rgba(0, 255, 255, 0.08);
+        }
+
+        .news-month {
+            font-size: 0.9rem;
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .news-title {
+            font-size: 1.3rem;
+            color: #0ff;
+            text-shadow: 0 0 5px #0ff;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .news-description {
+            color: #0ff;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .news-description ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .news-description li {
+            padding: 0.3rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .news-description li::before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #0ff;
+            font-size: 0.8rem;
+        }
+
+        .news-description strong {
+            color: #0ff;
+            text-shadow: 0 0 5px #0ff;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.9);
+            border-top: 2px solid #0ff;
+            margin-top: auto;
+        }
+
+        .footer-text {
+            color: #0ff;
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px #0ff;
+        }
+
+        @media (max-width: 768px) {
+            .toggle-header {
+                font-size: 1.2rem;
+            }
+            
+            .news-scroll {
+                max-height: 300px;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+<img src="/assets/images/cpmpfp.jpg" alt="CPM Garage Logo" class="bg-logo">
+    
+    <div class="container">
+        <header>
+            <a href="main.html" class="back-btn">← Back to Home</a>
+            <h1 class="neon">UPCOMING INFO</h1>
+            <p class="subtitle">Future Updates & Releases</p>
+        </header>
+
+        <main class="main-content">
+            <div class="news-section">
+                <h2 class="section-title">UPDATE LOG</h2>
+                
+                <div id="monthlyNews">
+                    <!-- Monthly expandable sections will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p class="footer-text">CPMGARAGESTUDIOS © 2025 | Home of The Underground Community</p>
+        </footer>
+    </div>
+
+    <script>
+        // News data structure - organized by month with pagination
+        let newsData = [
+            {
+                month: "JULY 2025",
+                title: "🎲 DAILY RAFFLES SYSTEM - COMING SOON",
+                content: `
+                    <p><strong>Release Status: Coming Soon!</strong></p>
+                    <ul>
+                        <li>Automated daily prize draws</li>
+                        <li>Daily 50m + 500k Coin Reward</li>
+                        <li>Weekly Rare Car Draws</li>
+                        <li>1 account per individual please respect the community</li>
+                    </ul>
+                `,
+                type: "featured"
+            },
+            {
+                month: "JULY 2025",
+                title: "⚡ SCRIPT GENERATOR V2.0 - COMING SOON",
+                content: `
+                    <p><strong>Release Status: Coming Soon!</strong></p>
+                    <p><strong>💰 Pricing: $25/Month or $99 Lifetime</strong></p>
+                    <ul>
+                        <li>50+ Working Injectable Mods</li>
+                        <li>Advanced script customization</li>
+                        <li>Date,Update,Rename,DeviceID,Password,IP,Protections</li>
+                        <li>Complete Personalization + Remove cpmgarage branding</li>
+                        <li>Personal Script Cloud Storage</li>
+                    </ul>
+                `,
+                type: "featured"
+            },
+            {
+                month: "JULY 2025",
+                title: "🚨 HELP WANTED - SCAM REPORT ADMIN",
+                content: `
+                    <p>Looking for dedicated community members to join our admin team!</p>
+                    <ul>
+                        <li>Monitor and verify scam reports</li>
+                        <li>Maintain community safety standards</li>
+                        <li>Help protect fellow members</li>
+                        <li>Exclusive admin privileges</li>
+                    </ul>
+                    <p><strong>DM @_cpmgarage if interested!</strong></p>
+                `,
+                type: "help-wanted"
+            },
+            {
+                month: "JULY 2025",
+                title: "💰 ADVERTISEMENT SPACES AVAILABLE",
+                content: `
+                    <p>Premium advertising opportunities now available!</p>
+                    <ul>
+                        <li>High-traffic underground community</li>
+                        <li>Targeted audience engagement</li>
+                        <li>Custom ad placement options</li>
+                        <li>Competitive rental rates</li>
+                    </ul>
+                    <p><strong>DM for rental inquiries and pricing!</strong></p>
+                `,
+                type: "business"
+            },
+            {
+                month: "JULY 2025",
+                title: "🌐 MAJOR SITE LAUNCH",
+                content: `
+                    <p>The underground is going public! Proud to empower and equip the CPM Community!</p>
+                    <ul>
+                        <li>Check out the Trusted Sellers page for deals on wheels!</li>
+                        <li>Added GG Script Generator V1 hottest tool in the market</li>
+                        <li>Free GG Script, Mod APKs and More!</li>
+                    </ul>
+                    <p><em>More on the way stay tuned!...</em></p>
+                `,
+                type: "featured"
+            }
+        ];
+
+        // Pagination settings
+        let currentPage = 1;
+        const itemsPerPage = 5;
+
+        function getMonthlyData() {
+            // Group news by month
+            const monthlyGroups = {};
+            newsData.forEach(item => {
+                if (!monthlyGroups[item.month]) {
+                    monthlyGroups[item.month] = [];
+                }
+                monthlyGroups[item.month].push(item);
+            });
+            return monthlyGroups;
+        }
+
+        function createMonthlyExpandableSections() {
+            const monthlyData = getMonthlyData();
+            const months = Object.keys(monthlyData).sort().reverse(); // Most recent first
+            
+            const monthlyNews = document.getElementById('monthlyNews');
+            monthlyNews.innerHTML = '';
+            
+            months.forEach((month, index) => {
+                const monthNews = monthlyData[month];
+                
+                const newsToggle = document.createElement('div');
+                newsToggle.className = `news-toggle ${index === 0 ? 'pulse' : ''}`;
+                newsToggle.style.marginBottom = '2rem';
+                newsToggle.innerHTML = `
+                    <div class="toggle-header">
+                        <span>🚀 ${month} Updates</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="news-content">
+                        <div class="news-scroll">
+                            ${monthNews.map(news => `
+                                <div class="news-item ${news.type || ''}">
+                                    <div class="news-month">${news.month}</div>
+                                    <div class="news-title">${news.title}</div>
+                                    <div class="news-description">${news.content}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                // Add click event to toggle
+                newsToggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                });
+                
+                monthlyNews.appendChild(newsToggle);
+            });
+        }
+
+        function renderNewsForMonth(month) {
+            const monthlyData = getMonthlyData();
+            const monthNews = monthlyData[month] || [];
+            
+            // Update toggle header
+            const toggleHeader = document.querySelector('.toggle-header span');
+            toggleHeader.textContent = `🚀 ${month} Updates`;
+            
+            const newsScroll = document.getElementById('newsScroll');
+            newsScroll.innerHTML = '';
+
+            monthNews.forEach(news => {
+                const newsItem = document.createElement('div');
+                newsItem.className = `news-item ${news.type || ''}`;
+                newsItem.innerHTML = `
+                    <div class="news-month">${news.month}</div>
+                    <div class="news-title">${news.title}</div>
+                    <div class="news-description">${news.content}</div>
+                `;
+                newsScroll.appendChild(newsItem);
+            });
+        }
+
+        function renderNews() {
+            // Default render for single month or initial load
+            const monthlyData = getMonthlyData();
+            const months = Object.keys(monthlyData).sort().reverse();
+            
+            if (months.length > 0) {
+                renderNewsForMonth(months[0]); // Show most recent month by default
+            }
+        }
+
+        function toggleNews() {
+            const toggle = document.getElementById('newsToggle');
+            toggle.classList.toggle('active');
+        }
+
+        // Matrix rain effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        const matrix = "1010101111000010101010011101010101";
+        const fontSize = 14;
+        let columns;
+        let drops;
+
+        function resizeMatrixCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            columns = Math.floor(canvas.width / fontSize);
+            drops = Array(columns).fill(1);
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00faff';
+            ctx.font = fontSize + 'px Courier New';
+            ctx.textBaseline = 'top';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        // Initialize everything
+        window.addEventListener('load', () => {
+            resizeMatrixCanvas();
+            setInterval(draw, 100);
+            createMonthlyExpandableSections();
+        });
+
+        window.addEventListener('resize', resizeMatrixCanvas);
+
+        // Function to add new news (for future use)
+        function addNews(month, title, content, type = '') {
+            newsData.unshift({ month, title, content, type });
+            createMonthlyExpandableSections(); // Re-render all expandable sections
+        }
+
+        // Example of how to add August news:
+        // addNews("AUGUST 2025", "🔥 New Feature", "<p>Description here</p>", "featured");
+    </script>
+</body>
+</html>
