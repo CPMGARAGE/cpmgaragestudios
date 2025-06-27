@@ -34,25 +34,25 @@
 
         .bg-logo {
             position: fixed;
-            top: 50%;
+            top: 52%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 400px;
-            height: 400px;
+            width: 500px;
+            height: 500px;
             z-index: 0;
             pointer-events: none;
-            opacity: 0.08;
+            opacity: 0.15;
             animation: logo-pulse 3s ease-in-out infinite;
         }
 
         @keyframes logo-pulse {
             0%, 100% { 
                 transform: translate(-50%, -50%) scale(1);
-                opacity: 0.05;
+                opacity: 0.1;
             }
             50% { 
                 transform: translate(-50%, -50%) scale(1.1);
-                opacity: 0.12;
+                opacity: 0.2;
             }
         }
 
@@ -66,24 +66,25 @@
 
         header {
             text-align: center;
-            padding: 2rem 1rem;
+            padding: 3rem 1rem 2rem;
             background: rgba(0, 0, 0, 0.8);
             border-bottom: 2px solid #0ff;
+            position: relative;
         }
 
         .back-btn {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 5px;
+            left: 5px;
             color: #0ff;
             text-decoration: none;
-            padding: 8px 15px;
-            border: 2px solid #0ff;
-            border-radius: 5px;
-            background: rgba(0, 0, 0, 0.9);
+            padding: 5px 10px;
+            border: 1px solid #0ff;
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.95);
             transition: all 0.3s ease;
-            font-size: 0.8rem;
-            z-index: 10;
+            font-size: 0.7rem;
+            z-index: 100;
         }
 
         .back-btn:hover {
@@ -326,6 +327,17 @@
             .news-scroll {
                 max-height: 300px;
             }
+            
+            .back-btn {
+                font-size: 0.6rem;
+                padding: 4px 8px;
+            }
+            
+            .bg-logo {
+                width: 250px;
+                height: 250px;
+                opacity: 0.1;
+            }
         }
 
         .pulse {
@@ -341,7 +353,7 @@
 </head>
 <body>
     <canvas id="matrix"></canvas>
-<img src="/assets/images/cpm1.jpg" alt="CPM Garage Logo" class="bg-logo">
+<img src="cpmpfp.jpg" alt="CPM Garage Logo" class="bg-logo">
     
     <div class="container">
         <header>
