@@ -1,313 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coming Soon</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      * {
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design Services</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: black;
+      color: #0ff;
+      overflow-x: hidden;
+    }
 
-      html,
-      body {
-        position: relative;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        background: black;
-        font-family: "Orbitron", sans-serif;
-        overflow-x: hidden;
-        color: #0ff;
-        z-index: 1;
-      }
+    canvas#matrix {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.3;
+    }
 
-      canvas#matrix {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 0;
-        pointer-events: none;
-        opacity: 0.3;
-      }
+    header {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+      z-index: 2;
+      position: relative;
+    }
 
-      header {
-        text-align: center;
-        padding: 2rem 1rem 1rem;
-      }
+    h1.neon {
+      font-size: 2.5rem;
+      color: #0ff;
+      text-shadow: 0 0 5px #0ff, 0 0 15px #0ff, 0 0 30px #08f;
+    }
 
-      h1.neon {
-        font-size: clamp(1.5rem, 5vw, 2.5rem);
-        color: #0ff;
-        text-shadow: 0 0 5px #0ff, 0 0 15px #0ff, 0 0 30px #08f;
-        animation: flicker 1.5s infinite alternate;
-      }
+    .tablet-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: auto;
+      position: relative;
+      z-index: 2;
+    }
 
-      @keyframes flicker {
-        0% {
-          opacity: 1;
+    .tablet {
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #0ff;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .tablet:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px #0ff;
+    }
+
+    .tablet-image {
+      height: 200px;
+      background-color: #111;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .tablet-content {
+      padding: 1.5rem;
+    }
+
+    .tablet h2 {
+      color: #0ff;
+      margin-bottom: 0.5rem;
+    }
+
+    .tablet p {
+      color: #ccc;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .btn {
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      color: #0ff;
+      border: 2px solid #0ff;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background: #0ff;
+      color: black;
+      box-shadow: 0 0 10px #0ff;
+    }
+
+    .locked {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 1rem;
+      text-decoration: none;
+      color: #0ff;
+      border: 1px solid #0ff;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      transition: 0.3s;
+    }
+
+    .back-link:hover {
+      background: #0ff;
+      color: black;
+      box-shadow: 0 0 10px #0ff;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <header>
+    <h1 class="neon">Design Services</h1>
+  </header>
+
+  <main class="tablet-container">
+    <div class="tablet">
+      <div class="tablet-image" style="background-image: url('assets/images/cpm1.jpg');"></div>
+      <div class="tablet-content">
+        <h2>CPM1 Designer Slot</h2>
+        <p>Do you design cars and want your brand here? Shoot me a DM! Only $5 per month for this ad space.</p>
+        <button class="btn">Learn More</button>
+      </div>
+    </div>
+    <div class="tablet">
+      <div class="tablet-image" style="background-image: url('assets/images/cpm2.jpg');"></div>
+      <div class="tablet-content">
+        <h2>CPM2 Designer Slot</h2>
+        <p>Got talent? Grab this tablet and showcase your work. Message me to reserve it for $5/month.</p>
+        <button class="btn">Learn More</button>
+      </div>
+    </div>
+    <div class="tablet locked">
+      <div class="tablet-image" style="background-image: url('assets/images/locked.jpg');"></div>
+      <div class="tablet-content">
+        <h2>Design Transfer Tool</h2>
+        <p>This tool will allow you to instantly transfer designs between projects. Coming soon!</p>
+        <button class="btn" disabled>Locked</button>
+      </div>
+    </div>
+  </main>
+
+  <a class="back-link" href="main.html">← Back to Main Menu</a>
+
+  <audio id="bg-music" autoplay loop preload="auto">
+    <source src="assets/audio/music.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    const matrix = "1010101111000010101010011101010101";
+    const fontSize = 14;
+    let columns, drops;
+
+    function resizeMatrixCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      columns = Math.floor(canvas.width / fontSize);
+      drops = Array(columns).fill(1);
+    }
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#00faff";
+      ctx.font = fontSize + "px Courier New";
+      for (let i = 0; i < drops.length; i++) {
+        const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
         }
-        50% {
-          opacity: 0.85;
-        }
-        100% {
-          opacity: 1;
-        }
+        drops[i]++;
       }
+    }
 
-      .button-grid {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding-bottom: 2rem;
-      }
-
-      .neon-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 300px;
-        height: 80px;
-        margin: 10px 0;
-        color: #0ff;
-        font-size: 1rem;
-        text-decoration: none;
-        border: 2px solid #0ff;
-        border-radius: 8px;
-        background-color: rgba(0, 0, 0, 0.4);
-        box-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .neon-button::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 100%;
-        border: 2px solid #0ff;
-        box-shadow: 0 0 10px #0ff;
-        opacity: 0;
-        animation: border-flicker 2s infinite;
-      }
-
-      .neon-button:hover::before {
-        opacity: 1;
-      }
-
-      .neon-button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 15px #0ff, 0 0 25px #0ff;
-      }
-
-      @keyframes border-flicker {
-        0%,
-        100% {
-          opacity: 0.8;
-        }
-        50% {
-          opacity: 0.2;
-        }
-      }
-
-      footer {
-        text-align: center;
-        padding: 2rem;
-      }
-
-      .ig-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 1rem;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        color: #f0f;
-        box-shadow: 0 0 10px #f0f, 0 0 20px #f0f;
-        transition: transform 0.3s, box-shadow 0.3s;
-      }
-
-      .ig-link img {
-        width: 18px;
-        height: 18px;
-      }
-
-      .ig-link:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
-      }
-
-      .ib-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 1rem;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        color: rgb(119, 0, 255);
-        box-shadow: 0 0 10px rgb(136, 0, 255), 0 0 20px rgb(170, 0, 255);
-        transition: transform 0.3s, box-shadow 0.3s;
-      }
-
-      .ib-link img {
-        width: 18px;
-        height: 18px;
-      }
-
-      .ib-link:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 20px rgb(162, 0, 255), 0 0 40px rgb(144, 0, 255);
-      }
-
-      .gallery {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 1rem;
-        padding: 2rem;
-        justify-items: center;
-        z-index: 2;
-        position: relative;
-      }
-
-      .gallery img {
-        width: 100%;
-        max-width: 250px;
-        border: 2px solid #0ff;
-        border-radius: 10px;
-        box-shadow: 0 0 10px #0ff;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-
-      .gallery img:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px #0ff;
-      }
-      .telegram-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.1rem;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        color: #0088cc;
-        box-shadow: 0 0 10px #0088cc, 0 0 20px #0088cc;
-        transition: transform 0.3s, box-shadow 0.3s;
-        margin-bottom: 0.1rem;
-      }
-
-      .telegram-link img {
-        width: 18px;
-        height: 18px;
-      }
-
-      .telegram-link:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 20px #0088cc, 0 0 40px #0088cc;
-      }
-    </style>
-  </head>
-  <body>
-    <canvas id="matrix"></canvas>
-    <header>
-      <h1 class="neon">Coming Soon</h1>
-    </header>
-
-    <main class="button-grid">
-      <a
-        href="#"
-        onclick="flipToIndex()"
-        class="neon-button"
-        style="width: auto; padding: 1rem 2rem; margin-top: 1rem"
-        >Back to Main Menu</a
-      >
-    </main>
-
-    <footer>
-      <div
-        style="
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.7rem;
-        "
-      ></div>
-    </footer>
-
-    <script>
-      const canvas = document.getElementById("matrix");
-      const ctx = canvas.getContext("2d");
-
-      const matrix = "1010101111000010101010011101010101";
-      const fontSize = 14;
-      let columns;
-      let drops;
-
-      function resizeMatrixCanvas() {
-        canvas.width = window.innerWidth;
-
-        const fullHeight = Math.max(
-          document.body.scrollHeight,
-          document.documentElement.scrollHeight,
-          document.body.offsetHeight,
-          document.documentElement.offsetHeight,
-          document.body.clientHeight,
-          document.documentElement.clientHeight
-        );
-
-        canvas.height = fullHeight;
-
-        columns = Math.floor(canvas.width / fontSize);
-        drops = Array(columns).fill(1);
-      }
-
-      function draw() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#00faff";
-        ctx.font = fontSize + "px Courier New";
-        ctx.textBaseline = "top";
-        for (let i = 0; i < drops.length; i++) {
-          const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
-          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-          if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
-            drops[i] = 0;
-          }
-          drops[i]++;
-        }
-      }
-
-      window.addEventListener("resize", resizeMatrixCanvas);
-      window.addEventListener("load", () => {
-        resizeMatrixCanvas();
-        setInterval(draw, 120);
-      });
-    </script>
-    <script>
-      function flipToIndex() {
-        document.body.style.transition =
-          "transform 0.6s ease-out, opacity 0.6s ease-out";
-        document.body.style.transform = "rotateY(90deg) scale(0.5)";
-        document.body.style.opacity = "0";
-        setTimeout(() => {
-          window.location.href = "main.html";
-        }, 500);
-      }
-    </script>
-    <audio id="bg-music" autoplay loop preload="auto">
-      <source src="assets/audio/music.mp3" type="audio/mpeg" />
-      Your browser does not support the audio element.
-    </audio>
-  </body>
+    window.addEventListener("resize", resizeMatrixCanvas);
+    window.addEventListener("load", () => {
+      resizeMatrixCanvas();
+      setInterval(draw, 100);
+    });
+  </script>
+</body>
 </html>
