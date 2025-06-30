@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lua Matrix IDE</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&amp;display=swap" rel="stylesheet"/>
+<style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+    }
+
+    #background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://i.imgur.com/NP0tgO2.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      z-index: -2;
+    }
+
+    #matrix {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    #toolbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.85);
+      border-bottom: 2px solid #00ffcc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #footerbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      border-top: 2px solid #00ffcc;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      height: 50px;
+      box-sizing: border-box;
+    }
+
+    .footer-left, .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #editor {
+      position: absolute;
+      top: 60px;
+      bottom: 50px;
+      left: 10px;
+      right: 10px;
+      z-index: 5;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(15px);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 255, 204, 0.3);
+    }
+
+    /* Search Panel Styles */
+    #searchPanel {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 350px;
+      background: rgba(0, 0, 0, 0.95);
+      border: 2px solid #00ffcc;
+      border-radius: 10px;
+      padding: 15px;
+      z-index: 20;
+      backdrop-filter: blur(15px);
+      display: none;
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+      cursor: move;
+      user-select: none;
+    }
+
+    #searchPanel.active {
+      display: block;
+      animation: searchSlideIn 0.3s ease-out;
+    }
+
+    #searchPanel.dragging {
+      transition: none;
+      box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
+      border-color: #00ffff;
+    }
+
+    @keyframes searchSlideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .search-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      color: #00ffcc;
+      font-weight: 600;
+      cursor: move;
+      user-select: none;
+    }
+
+    .search-close {
+      background: none;
+      border: none;
+      color: #ff4444;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 3px;
+      transition: all 0.3s;
+    }
+
+    .search-close:hover {
+      background: #ff4444;
+      color: #000;
+    }
+
+    .search-input-group {
+      margin-bottom: 10px;
+    }
+
+    .search-input-group label {
+      display: block;
+      color: #00ffcc;
+      font-size: 12px;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      padding: 8px 10px;
+      border-radius: 5px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      box-sizing: border-box;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #00ffff;
+      box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    }
+
+    .search-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .search-btn {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      padding: 6px 12px;
+      border-radius: 5px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .search-btn:hover {
+      background: #00ffcc;
+      color: #000;
+      box-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
+    }
+
+    .search-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .search-info {
+      color: #00ffcc;
+      font-size: 11px;
+      text-align: center;
+      margin-top: 10px;
+      padding: 5px;
+      background: rgba(0, 255, 204, 0.1);
+      border-radius: 5px;
+    }
+
+    .search-options {
+      display: flex;
+      gap: 15px;
+      margin: 10px 0;
+      font-size: 11px;
+    }
+
+    .search-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #00ffcc;
+      cursor: pointer;
+    }
+
+    .search-checkbox input[type="checkbox"] {
+      accent-color: #00ffcc;
+    }
+
+    button {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      padding: 8px 16px;
+      border-radius: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #00ffcc;
+      color: #000;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+    }
+
+    #charCount {
+      color: #00ffcc;
+      font-size: 14px;
+      font-weight: 600;
+      text-shadow: 0 0 5px #00ffcc;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid rgba(0, 255, 204, 0.3);
+    }
+
+    /* Monaco Editor Transparent Fix */
+    .monaco-editor,
+    .monaco-editor-background,
+    .monaco-scrollable-element,
+    .overflow-guard,
+    .margin,
+    .view-lines {
+      background: transparent !important;
+      background-color: transparent !important;
+      color: #00ffcc !important;
+    }
+
+    .monaco-editor .cursor {
+      background-color: #00ffff !important;
+      animation: electricPulse 1.2s infinite;
+      box-shadow: 0 0 6px #00ffff, 0 0 12px #00ffff;
+    }
+
+    .cursor-trail {
+      position: absolute;
+      width: 2px;
+      height: 1em;
+      background-color: #00ffff;
+      opacity: 0.5;
+      pointer-events: none;
+      border-radius: 1px;
+      animation: trailFade 0.8s ease-out forwards;
+      z-index: 99;
+    }
+
+    .spark {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background-color: #00ffff;
+      border-radius: 50%;
+      animation: sparkFade 0.6s ease-out forwards;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    @keyframes electricPulse {
+      0%   { box-shadow: 0 0 2px #0ff, 0 0 4px #0ff; }
+      50%  { box-shadow: 0 0 4px #0ff, 0 0 10px #0ff; }
+      100% { box-shadow: 0 0 2px #0ff, 0 0 4px #0ff; }
+    }
+
+    @keyframes trailFade {
+      0% { opacity: 0.5; transform: scaleY(1); }
+      100% { opacity: 0; transform: scaleY(2); }
+    }
+
+    @keyframes sparkFade {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(2) translateY(-10px); }
+    }
+
+    /* Search highlights */
+    .search-highlight {
+      background-color: rgba(255, 255, 0, 0.3) !important;
+      border: 1px solid #ffff00 !important;
+    }
+    .search-highlight-current {
+      background-color: rgba(0, 255, 255, 0.4) !important;
+      border: 2px solid #00ffff !important;
+    }
+    .search-highlight-inline {
+      background-color: rgba(255, 255, 0, 0.3) !important;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      #toolbar {
+        height: 50px;
+        padding: 0 10px;
+      }
+      
+      #footerbar {
+        height: 45px;
+        padding: 8px 10px;
+      }
+      
+      #editor {
+        top: 50px;
+        bottom: 45px;
+        left: 5px;
+        right: 5px;
+      }
+
+      #searchPanel {
+        width: calc(100% - 40px);
+        left: 20px;
+        right: 20px;
+        top: 60px;
+      }
+      
+      button {
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+      
+      #charCount {
+        font-size: 12px;
+        padding: 4px 8px;
+      }
+      
+      .toolbar-left, .toolbar-right,
+      .footer-left, .footer-right {
+        gap: 8px;
+      }
+    }
+
+    #terminal,
+    #statusbar {
+      display: none;
+    }
+  
+/* Hamburger Menu Styles */
+#hamburgerToggle {
+  position: center;
+  top: 8px;
+  right: 10px;
+  z-index: 15;
+  background: #00ffcc;
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+}
+
+#hamburgerMenu {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  border-left: 2px solid #00ffcc;
+  z-index: 999;
+  transition: right 0.3s ease-in-out;
+  padding: 20px 15px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+#hamburgerMenu.active {
+  right: 0;
+}
+
+#hamburgerMenu .menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  color: #00ffcc;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.menu-section {
+  margin-bottom: 15px;
+}
+
+.menu-section-title {
+  color: #00ffcc;
+  font-weight: bold;
+  margin-bottom: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+  font-size: 14px;
+}
+
+.mod-inject-item {
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.mod-inject-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px 0;
+}
+
+.mod-inject-title {
+  color: #00ffcc;
+  font-weight: bold;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mod-dropdown-arrow {
+  color: #00ffcc;
+  font-size: 14px;
+  transition: transform 0.3s ease;
+  user-select: none;
+}
+
+.mod-dropdown-arrow.expanded {
+  transform: rotate(90deg);
+}
+
+.mod-inject-buttons {
+  display: none;
+  gap: 5px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.mod-inject-buttons.expanded {
+  display: flex;
+}
+
+.mod-inject-btn {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 10px;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.inject-btn {
+  background: rgba(0, 255, 0, 0.2);
+  border-color: #00ff00;
+  color: #00ff00;
+}
+
+.inject-btn:hover {
+  background: #00ff00;
+  color: #000;
+}
+
+.copy-btn {
+  background: rgba(255, 165, 0, 0.2);
+  border-color: #ffa500;
+  color: #ffa500;
+}
+
+.copy-btn:hover {
+  background: #ffa500;
+  color: #000;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<style>
+#introOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  color: #00ffcc;
+  font-family: 'Orbitron', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+#tutorialBox {
+  width: 85%;
+  max-width: 760px;
+  background: #000;
+  border: 2px solid #00ffcc;
+  border-radius: 14px;
+  padding: 24px 30px;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+  animation: fadeIn 0.6s ease;
+}
+.tutorialPage {
+  display: none;
+}
+.tutorialPage.active {
+  display: block;
+}
+#tutorialBox h2 {
+  margin-top: 0;
+  text-shadow: 0 0 5px #00ffcc;
+}
+#tutorialBox ul, #tutorialBox p {
+  font-size: 14px;
+  text-align: left;
+  line-height: 1.6em;
+}
+#tutorialBox pre {
+  background: #001f1f;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-top: 10px;
+  border: 1px solid #00ffcc;
+}
+#tutorialNav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+#tutorialNav button {
+  padding: 10px 20px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  border: 1px solid #00ffcc;
+  background: #000;
+  color: #00ffcc;
+  cursor: pointer;
+  transition: 0.3s;
+}
+#tutorialNav button:hover {
+  background: #00ffcc;
+  color: #000;
+  box-shadow: 0 0 12px #00ffcc;
+}
+@keyframes fadeIn {
+  from {opacity: 0; transform: scale(0.95);}
+  to {opacity: 1; transform: scale(1);}
+}
+</style>
+</head>
+<body>
+<div id="entryPopup" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000d;color:#00ffcc;font-family:'Orbitron',sans-serif;display:flex;align-items:center;justify-content:center;z-index:99999;">
+<div style="background:#000;border:2px solid #00ffcc;padding:40px;border-radius:12px;max-width:600px;width:90%;text-align:center;box-shadow:0 0 20px #00ffcc;">
+<h2 style="font-size:26px;text-shadow:0 0 6px #00ffcc;">🧬 Welcome to the Lua Matrix</h2>
+<p style="margin-top:15px;font-size:14px;">
+      This is the first and only IDE built for <strong>Game Guardian</strong> scripters inside Car Parking Multiplayer.
+      Whether you're brand new or an elite modder, this forge is yours.
+    </p>
+<p style="margin-top:10px;font-size:13px;">
+      Want a walkthrough of scripting, scanning, loading, saving, autocomplete, and GG functions?
+    </p>
+<div style="margin-top:25px;display:flex;justify-content:center;gap:20px;">
+<button onclick="launchTutorial()" style="padding:10px 22px;background:#000;border:2px solid #00ffcc;color:#00ffcc;font-family:'Orbitron';cursor:pointer;">👨‍🏫 Yes, Teach Me</button>
+<button onclick="skipTutorial()" style="padding:10px 22px;background:#000;border:2px solid #00ffcc;color:#00ffcc;font-family:'Orbitron';cursor:pointer;">😎 Nah, I'm a Pro</button>
+</div>
+</div>
+</div>
+
+<div id="introOverlay">
+<div id="tutorialBox">
+<div class="tutorialPage active" id="page1">
+<h2>🚀 Welcome to the Lua Matrix IDE</h2>
+<p>This is the world's first dedicated Game Guardian IDE, custom-built for modders in Car Parking Multiplayer.</p>
+<ul>
+<li>Write and test Lua scripts using native GG functions</li>
+<li>Use smart autocomplete, load templates, and preview mods</li>
+<li>Export ready-to-run .lua files</li>
+</ul>
+<p>Let’s dive into how this forge works. 🔧</p>
+</div>
+<div class="tutorialPage" id="page2">
+<h2>🧠 What is Game Guardian Scripting?</h2>
+<p>Game Guardian is a memory scanner and editor for Android games. Using Lua, you automate memory edits with precision.</p>
+<pre>
+gg.setRanges(gg.REGION_ANONYMOUS)
+gg.searchNumber("100", gg.TYPE_DWORD)
+gg.getResults(30)
+gg.editAll("999", gg.TYPE_DWORD)
+  </pre>
+<p>This IDE helps you create, edit, and deploy these types of scripts easily.</p>
+</div>
+<div class="tutorialPage" id="page3">
+<h2>🧰 GG Function Examples</h2>
+<ul>
+<li><code>gg.alert("Welcome")</code> – popup window</li>
+<li><code>gg.toast("Loading")</code> – overlay toast</li>
+<li><code>gg.searchNumber("123", gg.TYPE_DWORD)</code> – scan memory</li>
+<li><code>gg.setRanges(gg.REGION_C_ALLOC)</code> – filter memory regions</li>
+<li><code>gg.getResults(100)</code> – grab results</li>
+<li><code>gg.editAll("999", gg.TYPE_DWORD)</code> – modify values</li>
+</ul>
+</div>
+<div class="tutorialPage" id="page4">
+<h2>📂 Saving, Loading, Importing</h2>
+<p><strong>⚠️ Loading a mod or template will ERASE your current code.</strong></p>
+<ul>
+<li>💾 Use <strong>Save</strong> to export to .lua format</li>
+<li>📤 Use <strong>Load</strong> to import .lua mods</li>
+<li>🧠 Templates drop in pre-built structures</li>
+</ul>
+<p>Use these options wisely before building a final hack.</p>
+</div>
+<div class="tutorialPage" id="page5">
+<h2>🧩 Snippets &amp; Autocomplete</h2>
+<p>Typing <code>gg.</code> in the IDE shows smart suggestions like:</p>
+<ul>
+<li><code>gg.setVisible()</code></li>
+<li><code>gg.sleep(500)</code></li>
+<li><code>gg.choice()</code></li>
+</ul>
+<p>Click 🧠 GG Snippet to drop function templates into your script with one tap.</p>
+</div>
+<div class="tutorialPage" id="page6">
+<h2>🔄 Undo System</h2>
+<p>Every change you make is tracked:</p>
+<ul>
+<li>↩️ Undo restores to last saved point</li>
+<li>(Cant undo mod/template injects)</li>
+</ul>
+<p>This is useful when debugging scripts or testing logic flow.</p>
+</div>
+<div class="tutorialPage" id="page7">
+<h2>📜 Writing Clean Code</h2>
+<p>Tips for clean GG scripting:</p>
+<ul>
+<li>Always close functions properly</li>
+<li>Indent with spaces for clarity</li>
+<li>Group scans, edits, and results</li>
+<li>Use comments: <code>-- this edits coins</code></li>
+</ul>
+</div>
+<div class="tutorialPage" id="page8">
+<h2>📱 Mobile IDE Tips</h2>
+<ul>
+<li>Tap lines to reposition cursor</li>
+<li>Use Save before switching tabs</li>
+<li>Zoom in/out with pinch if needed</li>
+<li>Double-tap snippets to insert fast</li>
+</ul>
+<p>This IDE is optimized for touchscreen editing!</p>
+</div>
+<div class="tutorialPage" id="page9">
+<h2>🛠️ Advanced Memory Tricks</h2>
+<ul>
+<li>Use multiple <code>gg.setRanges()</code> calls to scan multiple regions</li>
+<li>Loop edits with Lua <code>for</code> loops</li>
+<li>Use <code>gg.clearResults()</code> between scans</li>
+</ul>
+<pre>
+for i = 1, 5 do
+  gg.searchNumber("100", gg.TYPE_DWORD)
+  gg.editAll("999", gg.TYPE_DWORD)
+  gg.clearResults()
+end
+  </pre>
+</div>
+<div class="tutorialPage" id="page10">
+<h2>📦 Ready-to-Use Mods</h2>
+<p>This IDE comes with a growing library of <strong>standalone Game Guardian mods</strong> crafted for instant deployment.</p>
+<p>You can use these as-is or wire them into your own scripts:</p>
+<ul>
+<li><strong>💰 50M Money Mod</strong> – Get Rich Quick!</li>
+<li><strong>🪙 30K Coins Mod</strong> – Stack up your gold now!</li>
+<li><strong>🛞 Chrome Rims Mod</strong> – Roll out in style</li>
+<li><strong>💡 Lights/Breaks</strong> – Lights and Breaks use same method</li>
+<li><strong>⚡ Shift Speed Mod</strong> – No more granny shifting!</li>
+<li><strong>🛠️ Custom HP Mod</strong> - Power up your engine!</li>
+<li><strong>⚙️ Camber Mod</strong> - Low and slow :)</li>
+</ul>
+<p>🧠 Each one is plug-and-play, but also editable. Try loading one and viewing the code — it’s a perfect way to learn advanced structures.</p>
+<p><strong>Tip:</strong> Importing these will overwrite current code, so be sure to save first.</p>
+</div>
+
+<div class="tutorialPage" id="page11">
+  <h2>🔥 You’re Ready</h2>
+  <p>You now know how to:</p>
+  <ul>
+    <li>Write, scan, and edit values</li>
+    <li>Use autocomplete and snippets</li>
+    <li>Load templates and export scripts</li>
+    <li>Undo mistakes and run fast</li>
+  </ul>
+  <p>Click Start and write your next mod. The Lua Matrix is now yours. 🧬</p>
+  <div style="text-align:center; margin-top: 30px;">
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="tutorialNav">
+<button onclick="prevTutorial()">◀ Prev</button>
+<button onclick="nextTutorial()">Next ▶</button>
+</div>
+
+
+
+
+
+
+
+
+</div>
+</div>
+
+<!-- Hamburger Side Menu -->
+<div id="hamburgerMenu">
+<div class="menu-header">
+<span>📜 Extra Tools</span>
+<button onclick="toggleHamburgerMenu()">✕</button>
+</div>
+<!-- Mod Inject Section -->
+<div class="menu-section">
+<div class="menu-section-title">💉 Mod Inject</div>
+<div class="mod-inject-item">
+<div class="mod-inject-header" onclick="toggleModDropdown('money-mod')">
+<div class="mod-inject-title">💰 50M Money Mod</div>
+<span class="mod-dropdown-arrow" id="money-mod-arrow">▶</span>
+</div>
+<div class="mod-inject-buttons" id="money-mod-buttons">
+<button class="mod-inject-btn inject-btn" onclick="injectMoneyMod()">🔧 Inject to IDE</button>
+<button class="mod-inject-btn copy-btn" onclick="copyMoneyMod()">📋 Copy to Clipboard</button>
+</div>
+</div>
+<div class="mod-inject-item">
+<div class="mod-inject-header" onclick="toggleModDropdown('coins-mod')">
+<div class="mod-inject-title">🪙 30K Coins Mod</div>
+<span class="mod-dropdown-arrow" id="coins-mod-arrow">▶</span>
+</div>
+<div class="mod-inject-buttons" id="coins-mod-buttons">
+<button class="mod-inject-btn inject-btn" onclick="injectCoinsMod()">🔧 Inject to IDE</button>
+<button class="mod-inject-btn copy-btn" onclick="copyCoinsMod()">📋 Copy to Clipboard</button>
+</div>
+</div>
+<div class="mod-inject-item">
+<div class="mod-inject-header" onclick="toggleModDropdown('chromerims-mod')">
+<div class="mod-inject-title">🛞 Chrome Rims Mod</div>
+<span class="mod-dropdown-arrow" id="chromerims-mod-arrow">▶</span>
+</div>
+<div class="mod-inject-buttons" id="chromerims-mod-buttons">
+<button class="mod-inject-btn inject-btn" onclick="injectChromeRimsMod()">🔧 Inject to IDE</button>
+<button class="mod-inject-btn copy-btn" onclick="copyChromeRimsMod()">📋 Copy to Clipboard</button>
+</div>
+</div>
+<div class="mod-inject-item">
+<div class="mod-inject-header" onclick="toggleModDropdown('lightsbreaks-mod')">
+<div class="mod-inject-title">💡 Lights/Breaks Mod</div>
+<span class="mod-dropdown-arrow" id="lightsbreaks-mod-arrow">▶</span>
+</div>
+<div class="mod-inject-buttons" id="lightsbreaks-mod-buttons">
+<button class="mod-inject-btn inject-btn" onclick="injectLightsBreaksMod()">🔧 Inject to IDE</button>
+<button class="mod-inject-btn copy-btn" onclick="copyLightsBreaksMod()">📋 Copy to Clipboard</button>
+</div>
+</div>
+<div class="mod-inject-item">
+<div class="mod-inject-header" onclick="toggleModDropdown('shiftspeed-mod')">
+<div class="mod-inject-title">⚡ Shift Speed Mod</div>
+<span class="mod-dropdown-arrow" id="shiftspeed-mod-arrow">▶</span>
+</div>
+<div class="mod-inject-buttons" id="shiftspeed-mod-buttons">
+<button class="mod-inject-btn inject-btn" onclick="injectShiftSpeedMod()">🔧 Inject to IDE</button>
+<button class="mod-inject-btn copy-btn" onclick="copyShiftSpeedMod()">📋 Copy to Clipboard</button>
+</div>
+</div>
+<div class="mod-inject-item">
+<div class="mod-inject-header" onclick="toggleModDropdown('customhp-mod')">
+<div class="mod-inject-title">🛠️ Custom HP Tool</div>
+<span class="mod-dropdown-arrow" id="customhp-mod-arrow">▶</span>
+</div>
+<div class="mod-inject-buttons" id="customhp-mod-buttons">
+<button class="mod-inject-btn inject-btn" onclick="injectCustomHPMod()">🔧 Inject to IDE</button>
+<button class="mod-inject-btn copy-btn" onclick="copyCustomHPMod()">📋 Copy to Clipboard</button>
+</div>
+</div>
+<div class="mod-inject-item">
+<div class="mod-inject-header" onclick="toggleModDropdown('camber-mod')">
+<div class="mod-inject-title">⚙️ Camber Mod</div>
+<span class="mod-dropdown-arrow" id="camber-mod-arrow">▶</span>
+</div>
+<div class="mod-inject-buttons" id="camber-mod-buttons">
+<button class="mod-inject-btn inject-btn" onclick="injectCamberMod()">🔧 Inject to IDE</button>
+<button class="mod-inject-btn copy-btn" onclick="copyCamberMod()">📋 Copy to Clipboard</button>
+</div>
+</div>
+</div>
+<!-- Template Section -->
+<div class="menu-section">
+<div class="menu-section-title">📜 Templates</div>
+<button onclick="insertScriptTemplate()">🧱 Insert Script Template</button>
+</div>
+<!-- Tools Section -->
+<div class="menu-section">
+<div class="menu-section-title">🔍 Tools</div>
+<button onclick="toggleSearch()">🔍 Search</button>
+<button onclick="runGGDebugger()">🔧 GG Debugger</button>
+<button onclick="window.location.href='encrypt.html'">🔒 Encrypter</button>
+<button onclick="window.location.href='obscure.html'">🔍 Obfuscator</button>
+</div>
+</div>
+<div id="background"></div>
+<canvas id="matrix"></canvas>
+<div id="toolbar">
+<div class="toolbar-left">
+<button onclick="copyCodeToClipboard()">📋 Copy</button>
+<button onclick="pasteCode()">📥 Paste</button>
+<button onclick="clearAll()">🗑️ Trash</button>
+<button onclick="insertGGTemplate()">📜 GG Snippet</button>
+<button onclick="toggleFullscreen()">📱 Fullscreen</button>
+<input id="fileInput" style="display:none" type="file"/>
+</div>
+<div class="toolbar-right">
+<span id="charCount">📝 0 chars</span>
+</div>
+</div>
+<div id="footerbar">
+<div class="footer-left">
+<button onclick="downloadScript()">💾 Save</button>
+<button onclick="uploadScript()">📤 Load</button>
+</div>
+<div class="footer-center" style="flex:1;display:flex;justify-content:center;align-items:center;gap:8px;">
+<button id="hamburgerToggle" onclick="toggleHamburgerMenu()" style="padding: 6px 14px; font-size: 11px; min-width: 80px; background: rgba(0,0,0,0.8); border: 1px solid #00ffcc; color: #00ffcc; border-radius: 5px; font-weight: bold; font-family: 'Orbitron', sans-serif;">☰ Menu</button>
+</div>
+<div class="footer-right">
+<button onclick="goBack()">🔙 Back</button>
+<button onclick="revertEditor()" title="Undo">↩️ Undo</button></div>
+</div>
+<!-- Search Panel -->
+<div id="searchPanel">
+<div class="search-header">
+<span>🔍 Search &amp; Replace</span>
+<button class="search-close" onclick="closeSearch()">✕</button>
+</div>
+<div class="search-body">
+<div class="search-input-group">
+<label for="searchInput">Find:</label>
+<input class="search-input" id="searchInput" placeholder="Enter search term..." type="text"/>
+</div>
+<div class="search-input-group">
+<label for="replaceInput">Replace with:</label>
+<input class="search-input" id="replaceInput" placeholder="Enter replacement..." type="text"/>
+</div>
+<div class="search-options">
+<label class="search-checkbox">
+<input id="matchCase" type="checkbox"/>
+        Match Case
+      </label>
+<label class="search-checkbox">
+<input id="wholeWord" type="checkbox"/>
+        Whole Word
+      </label>
+</div>
+<div class="search-controls">
+<button class="search-btn" onclick="findNext()">▼ Next</button>
+<button class="search-btn" onclick="findPrevious()">▲ Previous</button>
+<button class="search-btn" onclick="replaceOne()">Replace</button>
+<button class="search-btn" onclick="replaceAll()">Replace All</button>
+</div>
+<div class="search-info" id="searchInfo">
+      Enter a search term to begin
+    </div>
+</div>
+</div>
+<div id="editor"></div>
+<script>
+    // Global variables
+    let editor;
+    let searchMatches = [];
+    let currentMatchIndex = -1;
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
+
+    // Hardcoded Money Mod Script
+    const MONEY_MOD_SCRIPT = `-- CPMGARAGESTUDIOS 50M MOD IDE INJECT | DIFFICULTY: INTERMEDIATE
+function fiftyMil() -- function name and call
+    gg.setVisible(false)
+       gg.alert('𝔾𝕆 𝕋𝕆 ℙ𝔸ℝ𝕂𝕀ℕ𝔾 𝕃𝔼𝕍𝔼𝕃 #𝟚 𝕋ℍ𝔼ℕ ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 𝕊𝕋𝔸ℝ𝕋') -- Alerts user to be in the correct area for searching values
+  
+    while not gg.isVisible(true) do -- Hides GG UI for visibility 
+        gg.sleep(1000) -- Amount of time in milliseconds 1000=1 Second
+    end  -- closing while not do loop
+    gg.setVisible(false)
+    
+    gg.setRanges(gg.REGION_ANONYMOUS)  -- Memory Range (Anonymous)
+    gg.searchNumber('60', gg.TYPE_FLOAT)   -- Data type (Float)
+    gg.getResults(100)  -- Receive results
+    gg.sleep(2500)  -- Pause to prepare results properly
+    gg.editAll('1666666', gg.TYPE_FLOAT)   -- Edit Values (1666666=50M in this case)
+    gg.sleep(5000)  -- More time to correctly apply values
+    
+    gg.alert('ℂ𝕝𝕚𝕔𝕜 𝕆𝕥𝕙𝕖𝕣 𝕃𝕖𝕧𝕖𝕝𝕤, 𝕋𝕙𝕖𝕟 ℂ𝕝𝕚𝕔𝕜 𝕃𝕖𝕧𝕖𝕝 #𝟚, 𝕋𝕙𝕖𝕟 𝔹𝕒𝕔𝕜 𝕥𝕠 𝕆𝕥𝕙𝕖𝕣 𝕃𝕖𝕧𝕖𝕝𝕤, 𝕋𝕙𝕖𝕟 𝔾𝕠 𝕋𝕠 𝕃𝕖𝕧𝕖𝕝 #𝟛 𝕒𝕟𝕕 ℂ𝕠𝕞𝕡𝕝𝕖𝕥𝕖') -- Alerts user to activate money bypass
+    gg.sleep(7000) -- Gives user time to follow thru with alert
+    gg.clearResults()  -- Clears results for next mod + for game functionality
+    gg.sleep(1500) -- Small pause to view both messages properly
+    gg.toast('Done If Failed Restart CPM + GG and  Try Again')  -- End toast
+    waitForGG()  -- Waits for you go click GG 
+end -- closes the function
+
+function waitForGG(returnTo)   -- This Let's the function pause and wait for user input can be used at the end so gg doesn't block view or as a upgraded sleep function ) (This Money menu almost requires this so leave in script!)
+    while true do
+        local isVisible = gg.isVisible(true)
+
+        -- Ensure -1 does not break the function 
+        if isVisible and isVisible ~= -1 then
+            gg.setVisible(false)
+            if returnTo then
+                returnTo() -- Return to the correct menu
+            else
+                mainMenu() -- Default to Main Menu if nothing is passed
+            end
+            return -- Prevent infinite loop
+        end
+        gg.sleep(1000) -- Sleep to prevent excessive looping
+    end
+end
+
+fiftyMil()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script this is meant to loop the menu instead of it run once like a traditional script)
+
+-- Check out the template paster to craft your menu!! If not wired into a menu check out the template paster to craft your menu!`;
+
+    // Hardcoded 30K Coins Mod Script
+    const COINS_MOD_SCRIPT = ` -- CPMGARAGESTUDIOS 30K COINS IDE MOD INJECT | DIFFICULTY: INTERMEDIATE 
+
+function thirtyCoins() -- Function name
+      
+       gg.setVisible(false) -- Makes GG UI Close for visibility + while not GG functionality
+       gg.alert("𝔾𝕆 𝕋𝕆 𝔻ℝ𝕀𝕍𝔼ℝ 𝔼𝔻𝕀𝕋 𝄞𝔼ℕ𝕌 𝕋ℍ𝔼ℕ ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 𝕊𝕋𝔸ℝ𝕋") -- Wait for user to open GG before continuing
+    while not gg.isVisible(true) do
+        gg.sleep(100)
+    end
+    gg.setVisible(false)
+    gg.setRanges(gg.REGION_ANONYMOUS) -- Memory Range : ANONYMOUS
+
+    gg.searchNumber("500;100", gg.TYPE_DWORD)   -- Group Search 500-100
+    gg.sleep(2000) -- Added delay before getting results
+    local results = gg.getResults(50) -- Reduced batch size to prevent crashes
+
+    if #results > 0 then   -- if results are greater then 0 then (proceed)
+        gg.editAll("-2000000000", gg.TYPE_DWORD)
+        gg.sleep(2000) -- Added delay to ensure values apply properly
+        gg.alert("ℕ𝕠𝕨 𝕘𝕠 𝕥𝕠 𝔸𝕟𝕚𝕞𝕒𝕥𝕚𝕠𝕟𝕤 𝕒𝕟𝕕 𝕓𝕦𝕪 𝟚 𝕨𝕚𝕥𝕙 -$ ") -- Alert to tell user what to do
+        gg.sleep(6000) -- 6 second pause for user to correctly execute
+        gg.alert('𝔸𝕗𝕥𝕖𝕣 𝔹𝕦𝕪𝕚𝕟𝕘 𝔹𝕠𝕥𝕙 -$ 𝕎𝕒𝕚𝕥 𝕀𝕟 𝔻𝕣𝕚𝕧𝕖𝕣 𝄞𝕖𝕟𝕦 𝔽𝕠𝕣 𝔽𝕚𝕟𝕒𝕝 𝔼𝕕𝕚𝕥') -- Another user direction alert
+       revert = gg.getResults(50)
+        gg.sleep(1000)
+        gg.editAll("-294937296",gg.TYPE_DWORD) -- Final Edit
+        gg.sleep(4000)
+        gg.alert('ℕ𝕠𝕨 𝔾𝕠 𝕋𝕠 𝔸𝕟𝕚𝕞𝕒𝕥𝕚𝕠𝕟𝕤 𝔸𝕟𝕕 𝔹𝕦𝕪 𝟙 ℂ𝕙𝕒𝕟𝕘𝕖𝕕 ℙ𝕣𝕚𝕔𝕖 ✅️') 
+        gg.sleep(5000) -- 5 Seconds pause for user to meet condition
+        gg.toast("✅ ℂ𝕠𝕚𝕟 ℍ𝕒𝕔𝕜 𝔸𝕡𝕡𝕝𝕚𝕖𝕕!") 
+        gg.clearResults()  -- Flushes results for next mod and for game functionality 
+    else   -- if results are 0 or negative then error
+        gg.alert("❌ No values found! Make sure you're in the correct menu before applying.")
+    end -- Closes the if then condition
+        gg.toast('𝕋𝕒𝕡 𝔾𝔾 𝕋𝕠 ℝ𝖊𝕥𝕦𝕣𝕟 𝕋𝕠 ℂ𝕠𝕚𝕟 𝄞𝔢𝕟𝦳')
+    waitForGG() -- Ensures script returns to menu instead of restarting
+end  -- Closes the coin function
+
+function waitForGG(returnTo)   -- This Let's the function pause and wait for user input can be used at the end so gg doesn't block view or as a upgraded sleep function ) (This Money menu almost requires this so leave in script!)
+    while true do
+        local isVisible = gg.isVisible(true)
+
+        -- Ensure -1 does not break the function 
+        if isVisible and isVisible ~= -1 then
+            gg.setVisible(false)
+            if returnTo then
+                returnTo() -- Return to the correct menu
+            else
+                mainMenu() -- Default to Main Menu if nothing is passed
+            end
+            return -- Prevent infinite loop
+        end
+        gg.sleep(1000) -- Sleep to prevent excessive looping
+    end
+end
+
+thirtyCoins()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`;
+
+    // Mod Dropdown Toggle Function
+
+// Hardcoded Camber Mod Script
+const CAMBER_MOD_SCRIPT = `-- CPMGARAGESTUDIOS CAMBER MOD INJECT | DIFFICULTY: BEGINNER
+
+function camber1()  -- function name
+gg.setVisible(false)  -- hides gg ui for visibility and wait for gg functionality
+gg.alert ( ' 𝕊𝔼𝕋 𝕀ℕℂ𝕃𝕀ℕ𝔼 𝕋𝕆 𝟙𝟘 𝕋ℍ𝔼ℕ ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 𝕊𝕋𝔸ℝ𝕋' ) -- alert to tell user what to do
+while not gg.isVisible(true) do -- waits for user to click gg
+        gg.sleep(100)
+    end
+    gg.setVisible(false)
+gg. setRanges (gg. REGION_ANONYMOUS) -- memory range (ANONYMOUS)
+gg. searchNumber ( ' -10 ' , gg. TYPE_FLOAT )  -- initial search data type: FLOAT
+gg. getResults ( 100 )  -- receive results
+gg.alert ( ' 𝕊𝕖𝕥 𝕀𝕟𝕔𝕝𝕚𝕟𝕖 𝕋𝕠 𝟘 ' )  -- alert user again
+gg.sleep ( 5000 )  -- 5 sec pause to give user time to execute
+gg. searchNumber ( ' 0 ' ,gg. TYPE_FLOAT )  -- second search
+gg. getResults ( 100 )  -- receiving results again
+gg.alert ( ' 𝕊𝕖𝕥 𝕀𝕟𝕔𝕝𝕚𝕟𝕖 𝕋𝕠 𝟙𝟘' )  -- alerts user one last time
+gg.sleep ( 5000 )  -- 5 sec pause to give user time to execute
+gg. searchNumber ( ' -10 ' ,gg. TYPE_FLOAT )  -- last search
+gg. getResults ( 100 ) -- receive results
+gg. editAll ( ' -36 ' ,gg. TYPE_FLOAT )  -- edit values 
+gg.alert ( ' ℂ𝕒𝕞𝕓𝕖𝕣 𝔸𝕕𝕛𝕦𝕤𝕥𝕖𝕕✅️ ' ) -- final success alert
+gg. clearResults ()  -- clears results for next mod and game functionality
+gg.toast('ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 ℝ𝔼𝕋𝕌ℝℕ 𝕋𝕆 𝕊𝕌𝕊ℙ𝔼ℕ𝕊𝕀𝕆ℕ 𝕄𝔼ℕ𝕌') --small message 
+waitForGG()  -- waits for user to click GG To Return back to menu (no menu in this case)
+end -- closes the function 
+
+function waitForGG(returnTo)   -- This Let's the function pause and wait for user input can be used at the end so gg doesn't block view or as a upgraded sleep function ) (This Money menu almost requires this so leave in script!)
+    while true do
+        local isVisible = gg.isVisible(true)
+
+        -- Ensure -1 does not break the function 
+        if isVisible and isVisible ~= -1 then
+            gg.setVisible(false)
+            if returnTo then
+                returnTo() -- Return to the correct menu
+            else
+                mainMenu() -- Default to Main Menu if nothing is passed
+            end
+            return -- Prevent infinite loop
+        end
+        gg.sleep(1000) -- Sleep to prevent excessive looping
+    end
+end
+
+camber1()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
+
+// Camber Mod Injection and Copy Functions
+function injectCamberMod() {
+  if (!editor) {
+    showNotification("❌ Editor not ready", "#ff4444");
+    return;
+  }
+  editor.setValue(CAMBER_MOD_SCRIPT);
+  editor.setPosition({ lineNumber: 1, column: 1 });
+  updateCharCount();
+  document.getElementById('hamburgerMenu').classList.remove('active');
+  showNotification("⚙️ Camber Mod injected to IDE successfully!", "#00ff00");
+}
+
+function copyCamberMod() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(CAMBER_MOD_SCRIPT)
+      .then(() => showNotification("⚙️ Camber Mod copied to clipboard!", "#ffa500"))
+      .catch(() => fallbackCopyCamberMod());
+  } else {
+    fallbackCopyCamberMod();
+  }
+  document.getElementById('hamburgerMenu').classList.remove('active');
+}
+
+function fallbackCopyCamberMod() {
+  const textarea = document.createElement('textarea');
+  textarea.value = CAMBER_MOD_SCRIPT;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    const success = document.execCommand('copy');
+    showNotification(success
+      ? "⚙️ Camber Mod copied to clipboard!"
+      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+    );
+  } catch {
+    showNotification("❌ Copy error", "#ff4444");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
+// Hardcoded Custom HP Tool Script
+const CUSTOM_HP_SCRIPT = `-- CPMGARAGESTUDIOS CAMBER MOD INJECT | DIFFICULTY: INTERMEDIATE
+
+function customHPInput()  -- function name
+    gg.setVisible(false)  -- hides gg for visibility and wait for gg functionality
+    gg.alert("𝔹𝕦𝕪 𝔸𝕟 𝔼𝕟𝕘𝕚𝕟𝕖 𝔸𝕟𝕕 ℝ𝕖𝕞𝕖𝕞𝕓𝕖𝕣 𝕋𝕠𝕣𝕢𝕦𝕖 𝔸𝕟𝕕 ℍℙ (𝕋𝕠 𝕋𝕦𝕟𝕖 𝕎𝕚𝕥𝕙 ℕ𝕠 𝔼𝕟𝕘𝕚𝕟𝕖 ℝ𝕖𝕞𝕖𝕞𝕓𝕖𝕣 ℝ𝕖𝕤𝕖𝕥 𝔼𝕟𝕘𝕚𝕟𝕖 𝔸𝕟𝕕 𝕌𝕤𝕖 𝕊𝕥𝕠𝕔𝕜 ℍℙ. 𝔸𝕕𝕕 𝕋𝕦𝕣𝕓𝕠 𝔽𝕠𝕣 𝕋𝕦𝕣𝕓𝕠 𝕊𝕠𝕦𝕟𝕕/ℙ𝕠𝕡𝕤")  -- user alert 
+    gg.sleep(1500)  -- small sleep so toast shows up properly
+    gg.toast('ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 𝕊𝕋𝔸ℝ𝕋')  -- small temporary message
+while not gg.isVisible(true) do -- waits for user to click gg
+        gg.sleep(100)
+    end
+    gg.setVisible(false)
+
+    local input = gg.prompt({  -- GG prompt lists categories and the type of value (number)
+        'Current HP:', 'New HP:', 
+        'Current Torque:', 'New Torque:', 
+        'Current Inner HP:', 'New Inner HP:', 
+        'Current Inner Torque:', 'New Inner Torque:'
+    }, {}, {'number', 'number', 'number', 'number', 'number', 'number', 'number', 'number'})
+
+    if not input then return end   -- so script doesn't crash if user exits
+
+    local values = {  -- table for storing user input 
+        {input[1], input[2]}, 
+        {input[3], input[4]}, 
+        {input[5], input[6]}, 
+        {input[7], input[8]}  
+    }
+
+    for i, v in ipairs(values) do -- for input, variable do for HP(2000hp) do "for example"
+        gg.setRanges(gg.REGION_ANONYMOUS)  -- set memory range (ANONYMOUS)
+        gg.searchNumber(v[1], gg.TYPE_FLOAT)  -- searches initial values
+        local results = gg.getResults(100) -- recieves/ stores results
+
+        if #results > 0 then -- if results are greater then 0 then continue
+            gg.editAll(v[2], gg.TYPE_FLOAT)  -- edit value to desired amount
+        else  -- if = 0 or negative then
+            gg.alert("Value not found! Try again.")  -- try again alert (good fallback logic)
+        end  -- closes for loop 
+        gg.clearResults()  -- clears results for retry
+    end  -- closes if then
+
+    gg.alert("ℂ𝕝𝕚𝕔𝕜 𝕠𝕟 𝔹𝕠𝕦𝕘𝕙𝕥 𝔼𝕟𝕘𝕚𝕟𝕖 𝕆𝕣 𝔹𝕦𝕪 𝕋𝕚𝕣𝕖𝕤 𝕆𝕣 𝔹𝕣𝕒𝕜𝕖𝕤 𝕀𝕗 𝕋𝕦𝕟𝕖𝕕 𝕎𝕚𝕥𝕙 𝕊𝕥𝕠𝕔𝕜 𝔼𝕟𝕘𝕚𝕟𝕖")  -- user alert
+    gg.sleep(6000) -- small 6sec pause to allow user to execute
+    gg.alert("ℍℙ 𝔸𝕕𝕛𝕦𝕤𝕥𝕞𝕖𝕟𝕥 ℂ𝕠𝕞𝕡𝕝𝕖𝕥𝕖 !") -- finishing alert
+
+    waitForGG()  -- waits for user to loop back to menu (if wired in this case it's not)
+end -- closes hp function
+
+function waitForGG(returnTo)   -- This Let's the function pause and wait for user input can be used at the end so gg doesn't block view or as a upgraded sleep function ) (This Money menu almost requires this so leave in script!)
+    while true do
+        local isVisible = gg.isVisible(true)
+
+        -- Ensure -1 does not break the function 
+        if isVisible and isVisible ~= -1 then
+            gg.setVisible(false)
+            if returnTo then
+                returnTo() -- Return to the correct menu
+            else
+                mainMenu() -- Default to Main Menu if nothing is passed
+            end
+            return -- Prevent infinite loop
+        end
+        gg.sleep(1000) -- Sleep to prevent excessive looping
+    end
+end
+
+customHPInput()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
+
+// Custom HP Tool Injection and Copy Functions
+function injectCustomHPMod() {
+  if (!editor) {
+    showNotification("❌ Editor not ready", "#ff4444");
+    return;
+  }
+  editor.setValue(CUSTOM_HP_SCRIPT);
+  editor.setPosition({ lineNumber: 1, column: 1 });
+  updateCharCount();
+  document.getElementById('hamburgerMenu').classList.remove('active');
+  showNotification("🛠️ Custom HP Tool injected to IDE successfully!", "#00ff00");
+}
+
+function copyCustomHPMod() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(CUSTOM_HP_SCRIPT)
+      .then(() => showNotification("🛠️ Custom HP Tool copied to clipboard!", "#ffa500"))
+      .catch(() => fallbackCopyCustomHPMod());
+  } else {
+    fallbackCopyCustomHPMod();
+  }
+  document.getElementById('hamburgerMenu').classList.remove('active');
+}
+
+function fallbackCopyCustomHPMod() {
+  const textarea = document.createElement('textarea');
+  textarea.value = CUSTOM_HP_SCRIPT;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    const success = document.execCommand('copy');
+    showNotification(success
+      ? "🛠️ Custom HP Tool copied to clipboard!"
+      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+    );
+  } catch {
+    showNotification("❌ Copy error", "#ff4444");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
+// Hardcoded Shift Speed Mod Script
+const SHIFT_SPEED_SCRIPT = `-- CPMGARAGESTUDIOS SHIFTSPEED MOD INJECT | DIFFICULTY BEGINNER
+
+function shiftSpeed() -- function name
+    gg.setVisible(false)  -- minimize gg ui for visibility and wait for gg functionality
+    gg.setRanges(gg.REGION_CODE_APP) -- memory range (XA CODE)
+    gg.alert('𝔹𝕌𝕐 𝔽𝔸𝕊𝕋 𝔾𝔼𝔸ℝ𝔹𝕆𝕏 𝕋ℍ𝔼ℕ ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 𝕊𝕋𝔸ℝ𝕋') -- user alert
+    while not gg.isVisible(true) do -- when gg is clicked this will allow it to run rest of script
+        gg.sleep(100)
+    end
+    gg.setVisible(false)
+    
+    gg.searchNumber('0.1', gg.TYPE_FLOAT) -- search data type (FLOAT)
+    local results = gg.getResults(250)  -- receive and store results
+
+    if #results > 0 then --if results is greater then 0 then continues script
+        gg.sleep(2000)  -- small sleep to finalize results 
+        gg.editAll('1E-34', gg.TYPE_FLOAT)  -- edit values
+        gg.alert('𝔹𝕦𝕪 𝕗𝕒𝕤𝕥 𝕘𝕖𝕒𝕣𝕓𝕠𝕩')  -- alert to finalize edit
+        gg.sleep(4000) --Time to buy shift speed
+    else  -- if results aren't greater then 0 then end function 
+        gg.alert('Shift Speed values not found! Try again.') -- error message
+    end -- ends if then conditional
+
+    gg.clearResults() -- clears results for next mod and for game functionality
+    waitForGG()  -- waits for user to click gg to return to menu ( in this case there's no menu)
+end
+
+function waitForGG(returnTo)   -- This Let's the function pause and wait for user input can be used at the end so gg doesn't block view or as a upgraded sleep function ) (This Money menu almost requires this so leave in script!)
+    while true do
+        local isVisible = gg.isVisible(true)
+
+        -- Ensure -1 does not break the function 
+        if isVisible and isVisible ~= -1 then
+            gg.setVisible(false)
+            if returnTo then
+                returnTo() -- Return to the correct menu
+            else
+                mainMenu() -- Default to Main Menu if nothing is passed
+            end
+            return -- Prevent infinite loop
+        end
+        gg.sleep(1000) -- Sleep to prevent excessive looping
+    end
+end
+
+shiftSpeed()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
+
+// Shift Speed Mod Injection and Copy Functions
+function injectShiftSpeedMod() {
+  if (!editor) {
+    showNotification("❌ Editor not ready", "#ff4444");
+    return;
+  }
+  editor.setValue(SHIFT_SPEED_SCRIPT);
+  editor.setPosition({ lineNumber: 1, column: 1 });
+  updateCharCount();
+  document.getElementById('hamburgerMenu').classList.remove('active');
+  showNotification("⚡ Shift Speed Mod injected to IDE successfully!", "#00ff00");
+}
+
+function copyShiftSpeedMod() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(SHIFT_SPEED_SCRIPT)
+      .then(() => showNotification("⚡ Shift Speed Mod copied to clipboard!", "#ffa500"))
+      .catch(() => fallbackCopyShiftSpeedMod());
+  } else {
+    fallbackCopyShiftSpeedMod();
+  }
+  document.getElementById('hamburgerMenu').classList.remove('active');
+}
+
+function fallbackCopyShiftSpeedMod() {
+  const textarea = document.createElement('textarea');
+  textarea.value = SHIFT_SPEED_SCRIPT;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    const success = document.execCommand('copy');
+    showNotification(success
+      ? "⚡ Shift Speed Mod copied to clipboard!"
+      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+    );
+  } catch {
+    showNotification("❌ Copy error", "#ff4444");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
+// Hardcoded Chrome Rims Mod Script
+const CHROME_RIMS_SCRIPT = `-- CPMGARAGESTUDIOS CHROME RIM MOD INJECT | DIFFICULTY: BEGINNER
+
+function chromeRims() -- function name
+    gg.setVisible(false)  -- make gg UI close for visibility and for wait for GG functionality
+    gg.alert('ℂ𝕙𝕠𝕠𝕤𝕖 ℝ𝕚𝕞𝕤 𝔸𝕟𝕕 𝔾𝕠 𝕋𝕠 𝕊𝕡𝕖𝕔𝕦𝕝𝕒𝕣 𝕋𝕙𝕖𝕟 𝕊𝕨𝕚𝕡𝕖 𝕦𝕡⬆️')  --user alert
+    gg.toast('𝕐𝕠𝕦 ℍ𝕒𝕧𝕖 𝟚𝟘 𝕊𝕖𝕔𝕠𝕟𝕕𝕤....')  -- small message
+    gg.sleep(20000)  -- 20 seconds pause so user can fulfill requirements
+
+    gg.setRanges(gg.REGION_ANONYMOUS)  -- set memory ranges (ANONYMOUS)
+
+    for i = 1, 9 do -- repeats loop 9 times (1-0-1-0-1-0-1-0-1)
+        gg.alert((i % 2 == 1) and "𝕊𝕨𝕚𝕡𝕖 𝕌𝕡" or "𝕊𝕨𝕚𝕡𝕖 𝔻𝕠𝕨𝕟")  -- if odd swipe up if even swipe down 
+        gg.sleep(5000)  -- 5 sec pause
+        gg.searchNumber((i % 2 == 1) and '1' or '0', gg.TYPE_FLOAT) -- if odd search 1 if even search 0
+        gg.getResults(100)  -- get results
+    end -- closes for i do loop
+
+    gg.editAll('10', gg.TYPE_FLOAT)  -- final edit 
+    gg.alert('ℂ𝕙𝕣𝕠𝕞𝕖 ℝ𝕚𝕞𝕤 𝔸𝕡𝕡𝕝𝕚𝕖𝕕!')  -- success alert
+    gg.sleep(500) -- small pause so next alert shows smoothly
+    gg.alert('MAKE MAIN COLOR BLACK AND TURN DOWN SPECULAR LEVELS FOR CHROME COLOR')  -- final revision messags
+
+    gg.clearResults()  -- clear results for next mod and for game functionality
+    gg.toast('Click GG To Return To Menu')  -- small message
+    waitForGG() -- wait to click GG To Return To menu ( not applicable in this example)
+end   -- closes function
+
+function waitForGG(returnTo)   -- This Let's the function pause and wait for user input can be used at the end so gg doesn't block view or as a upgraded sleep function ) (This Money menu almost requires this so leave in script!)
+    while true do
+        local isVisible = gg.isVisible(true)
+
+        -- Ensure -1 does not break the function 
+        if isVisible and isVisible ~= -1 then
+            gg.setVisible(false)
+            if returnTo then
+                returnTo() -- Return to the correct menu
+            else
+                mainMenu() -- Default to Main Menu if nothing is passed
+            end
+            return -- Prevent infinite loop
+        end
+        gg.sleep(1000) -- Sleep to prevent excessive looping
+    end
+end
+
+chromeRims()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
+
+// Chrome Rims Mod Injection and Copy Functions
+function injectChromeRimsMod() {
+  if (!editor) {
+    showNotification("❌ Editor not ready", "#ff4444");
+    return;
+  }
+  editor.setValue(CHROME_RIMS_SCRIPT);
+  editor.setPosition({ lineNumber: 1, column: 1 });
+  updateCharCount();
+  document.getElementById('hamburgerMenu').classList.remove('active');
+  showNotification("🛞 Chrome Rims Mod injected to IDE successfully!", "#00ff00");
+}
+
+function copyChromeRimsMod() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(CHROME_RIMS_SCRIPT)
+      .then(() => showNotification("🛞 Chrome Rims Mod copied to clipboard!", "#ffa500"))
+      .catch(() => fallbackCopyChromeRimsMod());
+  } else {
+    fallbackCopyChromeRimsMod();
+  }
+  document.getElementById('hamburgerMenu').classList.remove('active');
+}
+
+function fallbackCopyChromeRimsMod() {
+  const textarea = document.createElement('textarea');
+  textarea.value = CHROME_RIMS_SCRIPT;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    const success = document.execCommand('copy');
+    showNotification(success
+      ? "🛞 Chrome Rims Mod copied to clipboard!"
+      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+    );
+  } catch {
+    showNotification("❌ Copy error", "#ff4444");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
+// Hardcoded Lights/Breaks Mod Script
+const LIGHTS_BREAKS_SCRIPT = `-- CPMGARAGESTUDIOS LIGHTS/BREAKS MOD INJECT | DIFFICULTY: BEGINNER
+
+function glow()  -- function name
+    gg.setVisible(false)  -- hides gg ui for visibility and wait for gg functionality
+    gg.alert('𝔾𝕠 𝕋𝕠 ℍ𝕖𝕒𝕕𝕝𝕚𝕘𝕙𝕥𝕤 𝔹𝕣𝕖𝕒𝕜𝕤 𝔸𝕟𝕕 𝔼𝕟𝕥𝕖𝕣 ℂ𝕠𝕝𝕠𝕣 ℂ𝕠𝕕𝕖') -- user alert to say what to do
+    gg.alert('ℂ𝕠𝕝𝕠𝕣 ℂ𝕠𝕕𝕖𝕤 \n ℝ𝕖𝕕 #𝔽𝔽𝟘𝟘𝟘𝟘, 𝕆𝕣𝕒𝕟𝕘𝕖 #𝔽𝔽𝟠𝔽𝟛𝔸, 𝕐𝕖𝕝𝕝𝕠𝕨 #𝔽𝔽𝔽𝔽𝟘𝟘, ℙ𝕚𝕟𝕜 #𝔽𝔽𝟘𝟘𝔽𝔽, ℙ𝕦𝕣𝕡𝕝𝕖 #𝔼𝔽𝟙𝔽𝔽𝔽, 𝔻𝕒𝕣𝕜 𝔹𝕝𝕦𝕖 #𝟚𝟚𝟚𝟚𝔽𝔽, 𝕃𝕚𝕘𝕙𝕥 𝔹𝕝𝕦𝕖 #𝟘𝟘𝔽𝔽𝔽𝔽, 𝔾𝕣𝕖𝕖𝕟 #𝟘𝟘𝔽𝔽𝟘𝟘, 𝕎𝕙𝕚𝕥𝕖 #𝔽𝔽𝔽𝔽𝔽𝔽')  -- informational alert
+    gg.toast('You have 25 Seconds...') -- small message 
+    gg.sleep(25000)  -- 25000 milliseconds= 25 sec pause
+
+    gg.setRanges(gg.REGION_ANONYMOUS)  -- memory range (ANONYMOUS)
+
+    for i = 1, 9 do  -- repeats loop 9 times (1-0-1-0-1-0-1-0)
+        gg.alert((i % 2 == 1) and "ENTER COLOR CODE" or "MOVE COLOR TO BLACK") -- odd = 1st message | even = 2nd message
+        gg.sleep(5000)  -- 5 sec pause
+        gg.searchNumber((i % 2 == 1) and '1' or '0', gg.TYPE_FLOAT) -- if odd search 1 | if even search 0
+        gg.getResults(100)  -- get results
+    end -- closes for i do loop
+
+    gg.editAll('100', gg.TYPE_FLOAT)  -- edit values
+    gg.alert('𝔾𝕝𝕠𝕨 𝔸𝕡𝕡𝕝𝕚𝕖𝕕✨️')  -- final alert
+
+    gg.clearResults()  -- clears results for next mod and game functionality
+    gg.toast('ℂ𝕝𝕚𝕔𝕜 𝔾𝔾 𝕋𝕠 ℝ𝕖𝕥𝕦𝕣𝕟 𝕋𝕠 𝕄𝕖𝕟𝕦') -- small message
+    waitForGG()  -- waits for user to click gg to return to menu (not implicated in this example)
+end -- closes function
+
+
+function waitForGG(returnTo)   -- This Let's the function pause and wait for user input can be used at the end so gg doesn't block view or as a upgraded sleep function ) (This Money menu almost requires this so leave in script!)
+    while true do
+        local isVisible = gg.isVisible(true)
+
+        -- Ensure -1 does not break the function 
+        if isVisible and isVisible ~= -1 then
+            gg.setVisible(false)
+            if returnTo then
+                returnTo() -- Return to the correct menu
+            else
+                mainMenu() -- Default to Main Menu if nothing is passed
+            end
+            return -- Prevent infinite loop
+        end
+        gg.sleep(1000) -- Sleep to prevent excessive looping
+    end
+end
+
+glow()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
+
+// Lights/Breaks Mod Injection and Copy Functions
+function injectLightsBreaksMod() {
+  if (!editor) {
+    showNotification("❌ Editor not ready", "#ff4444");
+    return;
+  }
+  editor.setValue(LIGHTS_BREAKS_SCRIPT);
+  editor.setPosition({ lineNumber: 1, column: 1 });
+  updateCharCount();
+  document.getElementById('hamburgerMenu').classList.remove('active');
+  showNotification("💡 Lights/Breaks Mod injected to IDE successfully!", "#00ff00");
+}
+
+function copyLightsBreaksMod() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(LIGHTS_BREAKS_SCRIPT)
+      .then(() => showNotification("💡 Lights/Breaks Mod copied to clipboard!", "#ffa500"))
+      .catch(() => fallbackCopyLightsBreaksMod());
+  } else {
+    fallbackCopyLightsBreaksMod();
+  }
+  document.getElementById('hamburgerMenu').classList.remove('active');
+}
+
+function fallbackCopyLightsBreaksMod() {
+  const textarea = document.createElement('textarea');
+  textarea.value = LIGHTS_BREAKS_SCRIPT;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    const success = document.execCommand('copy');
+    showNotification(success
+      ? "💡 Lights/Breaks Mod copied to clipboard!"
+      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+    );
+  } catch {
+    showNotification("❌ Copy error", "#ff4444");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+    function toggleModDropdown(modId) {
+        const buttons = document.getElementById(modId + '-buttons');
+        const arrow = document.getElementById(modId + '-arrow');
+        
+        const isExpanded = buttons.classList.contains('expanded');
+        
+        if (isExpanded) {
+            buttons.classList.remove('expanded');
+            arrow.classList.remove('expanded');
+        } else {
+            buttons.classList.add('expanded');
+            arrow.classList.add('expanded');
+        }
+    }
+    // Money Mod Functions
+    function injectMoneyMod() {
+        if (!editor) {
+            showNotification("❌ Editor not ready", "#ff4444");
+            return;
+        }
+        
+        // Clear the editor and inject the money mod
+        editor.setValue(MONEY_MOD_SCRIPT);
+        editor.setPosition({ lineNumber: 1, column: 1 });
+        updateCharCount();
+        
+        // Close hamburger menu
+        document.getElementById('hamburgerMenu').classList.remove('active');
+        
+        showNotification("💰 Money Mod injected to IDE successfully!", "#00ff00");
+    }
+
+    function copyMoneyMod() {
+        // Copy to clipboard
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(MONEY_MOD_SCRIPT).then(() => {
+                showNotification("💰 Money Mod copied to clipboard!", "#ffa500");
+            }).catch(() => {
+                fallbackCopyMod();
+            });
+        } else {
+            fallbackCopyMod();
+        }
+        
+        // Close hamburger menu
+        document.getElementById('hamburgerMenu').classList.remove('active');
+    }
+
+    // 30K Coins Mod Functions
+    function injectCoinsMod() {
+        if (!editor) {
+            showNotification("❌ Editor not ready", "#ff4444");
+            return;
+        }
+        
+        // Clear the editor and inject the coins mod
+        editor.setValue(COINS_MOD_SCRIPT);
+        editor.setPosition({ lineNumber: 1, column: 1 });
+        updateCharCount();
+        
+        // Close hamburger menu
+        document.getElementById('hamburgerMenu').classList.remove('active');
+        
+        showNotification("🪙 30K Coins Mod injected to IDE successfully!", "#00ff00");
+    }
+
+    function copyCoinsMod() {
+        // Copy to clipboard
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(COINS_MOD_SCRIPT).then(() => {
+                showNotification("🪙 30K Coins Mod copied to clipboard!", "#ffa500");
+            }).catch(() => {
+                fallbackCopyCoinsMod();
+            });
+        } else {
+            fallbackCopyCoinsMod();
+        }
+        
+        // Close hamburger menu
+        document.getElementById('hamburgerMenu').classList.remove('active');
+    }
+
+    function fallbackCopyCoinsMod() {
+        const textarea = document.createElement('textarea');
+        textarea.value = COINS_MOD_SCRIPT;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        
+        try {
+            const success = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            if (success) {
+                showNotification("🪙 30K Coins Mod copied to clipboard!", "#ffa500");
+            } else {
+                showNotification("❌ Copy failed", "#ff4444");
+            }
+        } catch (err) {
+            document.body.removeChild(textarea);
+            showNotification("❌ Copy error", "#ff4444");
+        }
+    }
+    function fallbackCopyMod() {
+        const textarea = document.createElement('textarea');
+        textarea.value = MONEY_MOD_SCRIPT;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        
+        try {
+            const success = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            if (success) {
+                showNotification("💰 Money Mod copied to clipboard!", "#ffa500");
+            } else {
+                showNotification("❌ Copy failed", "#ff4444");
+            }
+        } catch (err) {
+            document.body.removeChild(textarea);
+            showNotification("❌ Copy error", "#ff4444");
+        }
+    }
+
+    // Matrix background animation
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    
+    function resizeCanvas() {
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+    }
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    const matrixChars = "01";
+    const fontSize = 16;
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops = Array(columns).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#00ffcc";
+      ctx.font = fontSize + "px monospace";
+      
+      columns = Math.floor(canvas.width / fontSize);
+      if (drops.length !== columns) {
+        drops = Array(columns).fill(1);
+      }
+      
+      for (let i = 0; i < drops.length; i++) {
+        const text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 33);
+
+    // Copy, paste, and clear functions
+    function copyCodeToClipboard() {
+      if (!editor) {
+        showNotification("❌ Editor not ready", "#ff4444");
+        return;
+      }
+      
+      const text = editor.getValue();
+      
+      if (!text || text.trim() === '') {
+        showNotification("📋 Nothing to copy - editor is empty", "#ffaa00");
+        return;
+      }
+      
+      // Create textarea and copy
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      
+      try {
+        const success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        if (success) {
+          showNotification("📋 Code copied to clipboard successfully!", "#00ffcc");
+        } else {
+          showNotification("❌ Copy command failed", "#ff4444");
+        }
+      } catch (err) {
+        document.body.removeChild(textarea);
+        showNotification("❌ Copy error: " + err.message, "#ff4444");
+      }
+    }
+
+    function pasteCode() {
+      try {
+        navigator.clipboard.readText().then(text => {
+          if (text) {
+            const currentValue = editor.getValue();
+            editor.setValue(currentValue + text);
+            showNotification("📥 Content pasted!", "#00ffcc");
+            updateCharCount();
+          } else {
+            showNotification("📥 Clipboard is empty", "#ffaa00");
+          }
+        }).catch(() => {
+          showNotification("💡 Use Ctrl+V to paste manually", "#ffaa00");
+        });
+      } catch (error) {
+        showNotification("❌ Paste failed", "#ff4444");
+      }
+    }
+
+    function clearAll() {
+      const confirmation = confirm("🗑️ Are you sure you want to clear all code?\n\nThis action cannot be undone!");
+      
+      if (confirmation) {
+        try {
+          editor.setValue('-- New Lua script\n');
+          editor.setPosition({ lineNumber: 2, column: 1 });
+          showNotification("🗑️ Editor cleared successfully!", "#00ffcc");
+          updateCharCount();
+        } catch (error) {
+          showNotification("❌ Clear failed", "#ff4444");
+        }
+      }
+    }
+
+    // Initialize Monaco Editor
+    require.config({ paths: { vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs" } });
+    require(["vs/editor/editor.main"], function () {
+      editor = monaco.editor.create(document.getElementById("editor"), {
+        value: '-- Lua script editor\n\nfunction start()\n    gg.alert("Hello GG World")\nend\n\nstart()',
+        language: "lua",
+        theme: "vs-dark",
+        automaticLayout: true,
+        fontSize: window.innerWidth < 768 ? 12 : 14,
+        lineNumbers: 'on',
+        minimap: { enabled: window.innerWidth > 768 },
+        wordWrap: 'on',
+        scrollBeyondLastLine: false,
+      });
+
+      updateCharCount();
+
+      // Keyboard shortcuts
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, function() {
+        toggleSearch();
+      });
+
+      editor.addCommand(monaco.KeyCode.Escape, function() {
+        closeSearch();
+      });
+
+      editor.addCommand(monaco.KeyCode.F3, function() {
+        findNext();
+      });
+
+      editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.F3, function() {
+        findPrevious();
+      });
+
+      // Cursor animations
+      editor.onDidChangeCursorPosition(() => {
+        const position = editor.getScrolledVisiblePosition(editor.getPosition());
+        if (!position) return;
+        const container = document.getElementById('editor');
+        const trail = document.createElement('div');
+        trail.className = 'cursor-trail';
+        trail.style.top = `${position.top}px`;
+        trail.style.left = `${position.left}px`;
+        container.appendChild(trail);
+        setTimeout(() => {
+          if (container.contains(trail)) {
+            container.removeChild(trail);
+          }
+        }, 1000);
+      });
+
+      editor.onKeyDown((e) => {
+        if (e.keyCode === monaco.KeyCode.Backspace) {
+          const position = editor.getScrolledVisiblePosition(editor.getPosition());
+          if (!position) return;
+          const container = document.getElementById('editor');
+          for (let i = 0; i < 6; i++) {
+            const spark = document.createElement('div');
+            spark.className = 'spark';
+            spark.style.top = `${position.top + (Math.random() * 10 - 5)}px`;
+            spark.style.left = `${position.left + (Math.random() * 10 - 5)}px`;
+            container.appendChild(spark);
+            setTimeout(() => {
+              if (container.contains(spark)) {
+                container.removeChild(spark);
+              }
+            }, 800);
+          }
+        }
+      });
+
+      editor.onDidChangeModelContent(() => {
+        setTimeout(() => {
+          updateCharCount();
+        }, 10);
+        clearSearchHighlights();
+      });
+
+      // Setup search inputs
+      document.getElementById('searchInput').addEventListener('input', performSearch);
+      document.getElementById('searchInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          if (e.shiftKey) {
+            findPrevious();
+          } else {
+            findNext();
+          }
+        }
+      });
+
+      document.getElementById('replaceInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          replaceOne();
+        }
+      });
+
+      document.getElementById('matchCase').addEventListener('change', performSearch);
+      document.getElementById('wholeWord').addEventListener('change', performSearch);
+
+      // Make search panel draggable
+      const panel = document.getElementById('searchPanel');
+      const header = panel.querySelector('.search-header');
+      
+      header.addEventListener('mousedown', function(e) {
+        if (e.target.tagName === 'BUTTON') return;
+        
+        isDragging = true;
+        panel.classList.add('dragging');
+        const rect = panel.getBoundingClientRect();
+        dragOffset.x = e.clientX - rect.left;
+        dragOffset.y = e.clientY - rect.top;
+        e.preventDefault();
+      });
+      
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+        
+        const maxX = window.innerWidth - panel.offsetWidth;
+        const maxY = window.innerHeight - panel.offsetHeight;
+        
+        panel.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
+        panel.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
+        panel.style.right = 'auto';
+      });
+      
+      document.addEventListener('mouseup', function() {
+        if (isDragging) {
+          isDragging = false;
+          panel.classList.remove('dragging');
+        }
+      });
+    });
+
+    // Utility functions
+    function updateCharCount() {
+      if (editor && editor.getValue) {
+        try {
+          const charCount = editor.getValue().length;
+          const charCountElement = document.getElementById("charCount");
+          if (charCountElement) {
+            charCountElement.textContent = `📝 ${charCount} chars`;
+          }
+        } catch (e) {
+          console.log('Character count update failed:', e);
+        }
+      }
+    }
+
+    function showNotification(message, color) {
+      const notification = document.createElement('div');
+      notification.textContent = message;
+      notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.9);
+        border: 2px solid ${color};
+        color: ${color};
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 600;
+        font-size: 12px;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 15px ${color}40;
+        animation: notificationSlide 0.3s ease-out;
+      `;
+      
+      if (!document.getElementById('notificationCSS')) {
+        const style = document.createElement('style');
+        style.id = 'notificationCSS';
+        style.textContent = `
+          @keyframes notificationSlide {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'notificationSlide 0.3s ease-out reverse';
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 300);
+      }, 2000);
+    }
+
+    // File operations
+    function downloadScript() {
+      const text = editor.getValue();
+      const blob = new Blob([text], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.download = "gg_script.lua";
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    }
+
+    function uploadScript() {
+      document.getElementById("fileInput").click();
+    }
+
+    document.getElementById("fileInput").addEventListener("change", function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        editor.setValue(e.target.result);
+        updateCharCount();
+      };
+      reader.readAsText(file);
+    });
+
+    // Template functions
+    function insertGGTemplate() {
+      const snippet = `\n\n-- GG Function Template\nfunction hackCoins() --Function Name\n  gg.setRanges(gg.REGION_ANONYMOUS) --Set Memory Range\n  gg.searchNumber("123", gg.TYPE_DWORD) --Search Value \n  gg.refineNumber("123") -- Refine Search\n  local results = gg.getResults(100) -- Get Results Before Editing\n  gg.editAll("999", gg.TYPE_DWORD) -- Edit Results\n  gg.toast("Coins hacked!") -- Small Temporary Message\n  gg.clearResults() -- Clears Results Preps For Next Function\nend -- Closes Function Properly`;
+      editor.setValue(editor.getValue() + snippet);
+      updateCharCount();
+    }
+
+    function insertScriptTemplate() {
+      const scriptTemplate = `--[[
+📜 SUPER SIMPLE MOD MENU for GAME GUARDIAN
+Built by CPMGARAGESTUDIOS 🧠
+🛠️ Use this as a template to make your own mods!
+✅ Safe for beginners
+]]
+
+-- Show a little welcome message at the top
+gg.alert("👋 Welcome to the CPMGARAGESTUDIOS GG MENU!\\n\\nChoose an option to run a mod.")
+
+-- 🧱 LIST OF MOD OPTIONS (you will see these in the popup menu)
+local menu = {
+  "💰 Mod Option 1 – Basic Number Hack",
+  "🔥 Mod Option 2 – Change Float Value",
+  "🔒 Mod Option 3 – Example with FLAGS",
+  "🧪 Mod Option 4 – Enter Your Own Number",
+  "❌ Exit Script"
+}
+
+-- 💰 Mod Option 1: Basic number hack (DWORD means normal numbers)
+function mod1()
+  gg.alert("This will search for the number 999999 and change it to 99999999.")
+  gg.clearResults()
+  gg.searchNumber("999999", gg.TYPE_DWORD)
+  local found = gg.getResults(20)
+  gg.editAll("99999999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("✅ Mod Option 1 finished!")
+end
+
+-- 🔥 Mod Option 2: Changes floating point numbers (decimal values)
+function mod2()
+  gg.alert("This will search for the float value 1.0 and change it to 2.5.")
+  gg.clearResults()
+  gg.searchNumber("1.0", gg.TYPE_FLOAT)
+  local found = gg.getResults(20)
+  gg.editAll("2.5", gg.TYPE_FLOAT)
+  gg.clearResults()
+  gg.toast("✅ Mod Option 2 finished!")
+end
+
+-- 🔒 Mod Option 3: Uses FLAGS for advanced memory types (for when basic search fails)
+function mod3()
+  gg.alert("This searches with flags (advanced memory). Searching 123456 and changing it to 654321.")
+  gg.clearResults()
+  gg.searchNumber("123456", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1, 0)
+  local found = gg.getResults(10)
+  gg.editAll("654321", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("✅ Mod Option 3 finished!")
+end
+
+-- 🧪 Mod Option 4: You type the number you want to search and change
+function mod4()
+  local input = gg.prompt({"🔢 What number do you want to find?"}, nil, {"number"})
+  if input == nil then
+    gg.toast("❌ You didn't type anything.")
+    return
+  end
+  gg.clearResults()
+  gg.searchNumber(input[1], gg.TYPE_DWORD)
+  local found = gg.getResults(10)
+  gg.editAll("9999", gg.TYPE_DWORD)
+  gg.clearResults()
+  gg.toast("✅ Your value was changed to 9999!")
+end
+
+-- 🚪 MAIN MENU LOOP – Keeps running until you choose "Exit"
+while true do
+  local choice = gg.choice(menu, nil, "📌 Select a Mod Option Below")
+  if choice == nil then
+    gg.toast("🕐 Waiting...")
+    gg.sleep(1000)
+  elseif menu[choice] == "❌ Exit Script" then
+    gg.toast("👋 Goodbye from CPMGARAGESTUDIOS!")
+    os.exit()
+  elseif choice == 1 then
+    mod1()
+  elseif choice == 2 then
+    mod2()
+  elseif choice == 3 then
+    mod3()
+  elseif choice == 4 then
+    mod4()
+  end
+end`;
+      
+      editor.setValue(scriptTemplate);
+      updateCharCount();
+    }
+
+    // Search functions
+    function toggleSearch() {
+      const panel = document.getElementById('searchPanel');
+      const isVisible = panel.classList.contains('active');
+      
+      if (isVisible) {
+        closeSearch();
+      } else {
+        panel.classList.add('active');
+        document.getElementById('searchInput').focus();
+        
+        const selection = editor.getSelection();
+        if (!selection.isEmpty()) {
+          const selectedText = editor.getModel().getValueInRange(selection);
+          document.getElementById('searchInput').value = selectedText;
+          performSearch();
+        }
+      }
+    }
+
+    function closeSearch() {
+      const panel = document.getElementById('searchPanel');
+      panel.classList.remove('active');
+      clearSearchHighlights();
+      editor.focus();
+    }
+
+    function performSearch() {
+      const searchTerm = document.getElementById('searchInput').value;
+      const matchCase = document.getElementById('matchCase').checked;
+      const wholeWord = document.getElementById('wholeWord').checked;
+      
+      clearSearchHighlights();
+      searchMatches = [];
+      currentMatchIndex = -1;
+      
+      if (!searchTerm) {
+        updateSearchInfo('Enter a search term to begin');
+        return;
+      }
+      
+      const model = editor.getModel();
+      const text = model.getValue();
+      
+      let flags = 'g';
+      if (!matchCase) flags += 'i';
+      
+      let pattern = searchTerm;
+      if (wholeWord) {
+        pattern = '\\b' + pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\          showNotification("❌ Clear failed", "#ff4444') + '\\b';
+      } else {
+        pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\          showNotification("❌ Clear failed", "#ff4444');
+      }
+      
+      try {
+        const regex = new RegExp(pattern, flags);
+        let match;
+        
+        while ((match = regex.exec(text)) !== null) {
+          const startPos = model.getPositionAt(match.index);
+          const endPos = model.getPositionAt(match.index + match[0].length);
+          
+          searchMatches.push({
+            range: new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column),
+            text: match[0]
+          });
+          
+          if (regex.lastIndex === match.index) {
+            regex.lastIndex++;
+          }
+        }
+        
+        if (searchMatches.length > 0) {
+          highlightMatches();
+          currentMatchIndex = 0;
+          goToMatch(0);
+          updateSearchInfo(`${searchMatches.length} matches found`);
+        } else {
+          updateSearchInfo('No matches found');
+        }
+      } catch (error) {
+        updateSearchInfo('Invalid search pattern');
+      }
+    }
+
+    function highlightMatches() {
+      const decorations = searchMatches.map(match => ({
+        range: match.range,
+        options: {
+          className: 'search-highlight',
+          inlineClassName: 'search-highlight-inline'
+        }
+      }));
+      
+      editor.deltaDecorations([], decorations);
+    }
+
+    function clearSearchHighlights() {
+      if (editor && editor.getModel()) {
+        const decorations = editor.getModel().getAllDecorations();
+        if (decorations) {
+          editor.deltaDecorations(decorations.map(d => d.id), []);
+        }
+      }
+    }
+
+    function goToMatch(index) {
+      if (searchMatches.length === 0 || index < 0 || index >= searchMatches.length) return;
+      
+      currentMatchIndex = index;
+      const match = searchMatches[index];
+      
+      const decorations = searchMatches.map((m, i) => ({
+        range: m.range,
+        options: {
+          className: i === index ? 'search-highlight-current' : 'search-highlight',
+          inlineClassName: i === index ? 'search-highlight-current' : 'search-highlight-inline'
+        }
+      }));
+      
+      editor.deltaDecorations([], decorations);
+      editor.setSelection(match.range);
+      editor.revealRangeInCenter(match.range);
+      updateSearchInfo(`${index + 1} of ${searchMatches.length} matches`);
+    }
+
+    function findNext() {
+      if (searchMatches.length === 0) {
+        performSearch();
+        return;
+      }
+      
+      const nextIndex = (currentMatchIndex + 1) % searchMatches.length;
+      goToMatch(nextIndex);
+    }
+
+    function findPrevious() {
+      if (searchMatches.length === 0) {
+        performSearch();
+        return;
+      }
+      
+      const prevIndex = currentMatchIndex <= 0 ? searchMatches.length - 1 : currentMatchIndex - 1;
+      goToMatch(prevIndex);
+    }
+
+    function replaceOne() {
+      if (currentMatchIndex < 0 || currentMatchIndex >= searchMatches.length) return;
+      
+      const replaceText = document.getElementById('replaceInput').value;
+      const match = searchMatches[currentMatchIndex];
+      
+      editor.executeEdits('replace', [{
+        range: match.range,
+        text: replaceText,
+        forceMoveMarkers: true
+      }]);
+      
+      setTimeout(() => {
+        performSearch();
+      }, 100);
+    }
+
+    function replaceAll() {
+      if (searchMatches.length === 0) return;
+      
+      const replaceText = document.getElementById('replaceInput').value;
+      const edits = searchMatches.map(match => ({
+        range: match.range,
+        text: replaceText,
+        forceMoveMarkers: true
+      }));
+      
+      editor.executeEdits('replaceAll', edits);
+      updateSearchInfo(`Replaced ${searchMatches.length} matches`);
+      
+      setTimeout(() => {
+        performSearch();
+      }, 100);
+    }
+
+    function updateSearchInfo(message) {
+      document.getElementById('searchInfo').textContent = message;
+    }
+
+    // GG Debugger
+    function runGGDebugger() {
+      const code = editor.getValue();
+      if (!code.trim()) {
+        alert("📝 Please write some code first before running the debugger!");
+        return;
+      }
+      
+      showNotification("🔧 Analyzing GG script...", "#ffaa00");
+      const analysis = analyzeGGScript(code);
+      displayDebugResults(analysis);
+    }
+
+    function analyzeGGScript(code) {
+      const lines = code.split('\n');
+      const analysis = {
+        errors: [],
+        warnings: [],
+        suggestions: [],
+        stats: {
+          totalLines: lines.length,
+          codeLines: 0,
+          commentLines: 0,
+          emptyLines: 0,
+          ggCalls: 0,
+          functions: 0
+        }
+      };
+
+      const ggMethods = {
+        'gg.alert': { params: 1 },
+        'gg.toast': { params: 1 },
+        'gg.choice': { params: [2,3] },
+        'gg.prompt': { params: [1,2,3] },
+        'gg.searchNumber': { params: [2,3,4,5,6,7,8] },
+        'gg.refineNumber': { params: [1,2,3,4,5,6,7] },
+        'gg.editAll': { params: 2 },
+        'gg.getResults': { params: 1 },
+        'gg.clearResults': { params: 0 },
+        'gg.setRanges': { params: 1 },
+        'gg.setVisible': { params: 1 },
+        'gg.sleep': { params: 1 }
+      };
+
+      const invalidPatterns = [
+        { pattern: /print\s*\(/, message: "print() is not valid in GameGuardian - use gg.alert() or gg.toast()" },
+        { pattern: /io\./, message: "io library is not available in GameGuardian" },
+        { pattern: /require\s*\(/, message: "require() is not available in GameGuardian" }
+      ];
+
+      let hasValidGGContent = false;
+      let hasSetRanges = false;
+      let hasSetVisible = false;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const lineNum = i + 1;
+        const trimmed = line.trim();
+
+        if (trimmed === '') {
+          analysis.stats.emptyLines++;
+        } else if (trimmed.startsWith('--')) {
+          analysis.stats.commentLines++;
+        } else {
+          analysis.stats.codeLines++;
+        }
+
+        const codeOnly = line.split('--')[0];
+        if (!codeOnly.trim()) continue;
+
+        for (const invalid of invalidPatterns) {
+          if (invalid.pattern.test(codeOnly)) {
+            analysis.errors.push({
+              line: lineNum,
+              message: invalid.message,
+              code: trimmed
+            });
+          }
+        }
+
+        if (codeOnly.includes('gg.')) {
+          hasValidGGContent = true;
+        }
+
+        if (codeOnly.includes('function')) {
+          analysis.stats.functions++;
+        }
+
+        for (const method in ggMethods) {
+          if (codeOnly.includes(method)) {
+            analysis.stats.ggCalls++;
+            
+            if (method === 'gg.setRanges') hasSetRanges = true;
+            if (method === 'gg.setVisible') hasSetVisible = true;
+
+            if (method === 'gg.searchNumber' && !codeOnly.includes('gg.TYPE_')) {
+              analysis.errors.push({
+                line: lineNum,
+                message: "searchNumber MUST specify data type (gg.TYPE_DWORD, gg.TYPE_FLOAT, etc.)",
+                code: trimmed
+              });
+            }
+
+            if (method === 'gg.getResults' && !codeOnly.match(/local\s+\w+\s*=|=\s*gg\.getResults/)) {
+              analysis.warnings.push({
+                line: lineNum,
+                message: "getResults return value should be stored (local results = gg.getResults(100))",
+                code: trimmed
+              });
+            }
+
+            if (method === 'gg.choice' && !codeOnly.match(/local\s+\w+\s*=|=\s*gg\.choice/)) {
+              analysis.errors.push({
+                line: lineNum,
+                message: "gg.choice return value must be stored (local choice = gg.choice(menu))",
+                code: trimmed
+              });
+            }
+          }
+        }
+      }
+
+      if (!hasValidGGContent && analysis.stats.codeLines > 2) {
+        analysis.errors.push({
+          line: 'Global',
+          message: "This doesn't appear to be a GameGuardian script - no gg. methods detected",
+          code: ''
+        });
+      }
+
+      if (!hasSetVisible && hasValidGGContent) {
+        analysis.suggestions.push({
+          line: 'Global',
+          message: "Add gg.setVisible(false) at the start to hide GG during script execution",
+          code: ''
+        });
+      }
+
+      if (!hasSetRanges && hasValidGGContent) {
+        analysis.suggestions.push({
+          line: 'Global',
+          message: "Add gg.setRanges() at the start to specify memory regions for faster searching",
+          code: ''
+        });
+      }
+
+      return analysis;
+    }
+
+    function displayDebugResults(analysis) {
+      let report = "🔧 GAMEGUARDIAN SCRIPT ANALYSIS REPORT\n";
+      report += "==================================================\n\n";
+      
+      report += "📊 SCRIPT STATISTICS:\n";
+      report += `• Total Lines: ${analysis.stats.totalLines}\n`;
+      report += `• Code Lines: ${analysis.stats.codeLines}\n`;
+      report += `• Comment Lines: ${analysis.stats.commentLines}\n`;
+      report += `• Empty Lines: ${analysis.stats.emptyLines}\n`;
+      report += `• GG API Calls: ${analysis.stats.ggCalls}\n`;
+      report += `• Functions: ${analysis.stats.functions}\n\n`;
+
+      if (analysis.errors.length > 0) {
+        report += "❌ ERRORS (Must Fix):\n";
+        analysis.errors.forEach((error, i) => {
+          report += `${i + 1}. Line ${error.line}: ${error.message}\n`;
+          if (error.code) report += `   Code: ${error.code}\n`;
+        });
+        report += "\n";
+      }
+
+      if (analysis.warnings.length > 0) {
+        report += "⚠️ WARNINGS (Should Fix):\n";
+        analysis.warnings.forEach((warning, i) => {
+          report += `${i + 1}. Line ${warning.line}: ${warning.message}\n`;
+          if (warning.code) report += `   Code: ${warning.code}\n`;
+        });
+        report += "\n";
+      }
+
+      if (analysis.suggestions.length > 0) {
+        report += "💡 SUGGESTIONS (Consider):\n";
+        analysis.suggestions.forEach((suggestion, i) => {
+          report += `${i + 1}. Line ${suggestion.line}: ${suggestion.message}\n`;
+          if (suggestion.code) report += `   Code: ${suggestion.code}\n`;
+        });
+        report += "\n";
+      }
+
+      const totalIssues = analysis.errors.length + analysis.warnings.length;
+      let grade, color;
+      if (analysis.errors.length === 0 && analysis.warnings.length === 0) {
+        grade = "A+ EXCELLENT";
+        color = "#00ff00";
+      } else if (analysis.errors.length === 0 && analysis.warnings.length <= 2) {
+        grade = "A VERY GOOD";
+        color = "#80ff00";
+      } else if (analysis.errors.length <= 1 && totalIssues <= 3) {
+        grade = "B GOOD";
+        color = "#ffff00";
+      } else if (analysis.errors.length <= 2 && totalIssues <= 5) {
+        grade = "C NEEDS WORK";
+        color = "#ffaa00";
+      } else {
+        grade = "D MAJOR ISSUES";
+        color = "#ff4444";
+      }
+
+      report += `🏆 SCRIPT GRADE: ${grade}\n`;
+      if (analysis.errors.length === 0) {
+        report += "✅ No critical errors detected - script should run!\n";
+      } else {
+        report += "⚠️ Fix errors before running script.\n";
+      }
+
+      showDebugDialog(report, color);
+      showNotification(`🔧 Analysis complete! Grade: ${grade}`, color);
+    }
+
+    function showDebugDialog(report, gradeColor) {
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(5px);
+      `;
+
+      const dialog = document.createElement('div');
+      dialog.style.cssText = `
+        background: rgba(0, 0, 0, 0.95);
+        border: 2px solid #00ffcc;
+        border-radius: 10px;
+        padding: 20px;
+        max-width: 80%;
+        max-height: 80%;
+        overflow-y: auto;
+        color: #00ffcc;
+        font-family: 'Orbitron', monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+        box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+        position: relative;
+      `;
+
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = '✕ Close';
+      closeBtn.style.cssText = `
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ff4444;
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: 'Orbitron', sans-serif;
+      `;
+
+      closeBtn.onclick = () => document.body.removeChild(modal);
+      
+      dialog.textContent = report;
+      dialog.appendChild(closeBtn);
+      modal.appendChild(dialog);
+      document.body.appendChild(modal);
+
+      modal.onclick = (e) => {
+        if (e.target === modal) {
+          document.body.removeChild(modal);
+        }
+      };
+    }
+
+    // Other functions
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((err) => {
+          alert(`Error attempting fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function goBack() {
+      window.location.href = 'utility_hub.html';
+    }
+
+    function toggleHamburgerMenu() {
+      const menu = document.getElementById('hamburgerMenu');
+      menu.classList.toggle('active');
+    }
+
+    // Handle orientation changes on mobile
+    window.addEventListener('orientationchange', function() {
+      setTimeout(() => {
+        resizeCanvas();
+        if (editor) {
+          editor.layout();
+        }
+      }, 100);
+    });
+
+    // Initialize hamburger menu buttons - close menu when clicking any button
+    window.addEventListener('DOMContentLoaded', function() {
+      const menu = document.getElementById('hamburgerMenu');
+      menu.querySelectorAll('button:not(.menu-header button)').forEach(btn => {
+        btn.addEventListener('click', () => {
+          menu.classList.remove('active');
+        });
+      });
+    });
+</script>
+<script>
+function revertEditor() {
+  if (typeof editor !== 'undefined') {
+    editor.trigger('keyboard', 'undo', null);
+  }
+}
+</script><script>
+require(['vs/editor/editor.main'], function () {
+  monaco.languages.registerCompletionItemProvider('lua', {
+    provideCompletionItems: () => {
+      const suggestions = [
+        {
+          label: 'gg.alert',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.alert("message")',
+          documentation: 'Displays an alert dialog'
+        },
+        {
+          label: 'gg.toast',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.toast("message")',
+          documentation: 'Shows a toast message'
+        },
+        {
+          label: 'gg.sleep',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.sleep(1000)',
+          documentation: 'Pauses execution for a given number of milliseconds'
+        },
+        {
+          label: 'gg.setRanges',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.setRanges(gg.REGION_ANONYMOUS)',
+          documentation: 'Sets the memory region to scan'
+        },
+        {
+          label: 'gg.getResults',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.getResults(100)',
+          documentation: 'Returns scan results'
+        },
+        {
+          label: 'gg.searchNumber',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.searchNumber("100", gg.TYPE_DWORD)',
+          documentation: 'Searches memory for a number'
+        },
+        {
+          label: 'gg.clearResults',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.clearResults()',
+          documentation: 'Clears previous scan results'
+        },
+        {
+          label: 'gg.setVisible',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.setVisible(false)',
+          documentation: 'Shows or hides the GG UI'
+        },
+        {
+          label: 'gg.choice',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.choice({ "Option 1", "Option 2" })',
+          documentation: 'Displays a multiple choice menu'
+        },
+        {
+          label: 'gg.multiChoice',
+          kind: monaco.languages.CompletionItemKind.Function,
+          insertText: 'gg.multiChoice({ "Option 1", "Option 2" }, nil, "Select options")',
+          documentation: 'Displays a multi-select dialog'
+        }
+      ];
+      return { suggestions };
+    }
+  });
+});
+</script>
+<script>
+let page = 1;
+function updatePages() {
+  const total = 11;
+  for (let i = 1; i <= total; i++) {
+    document.getElementById('page' + i).classList.remove('active');
+  }
+  if (page <= total) {
+    document.getElementById('page' + page).classList.add('active');
+  }
+  if (page > total) {
+    document.getElementById('introOverlay').style.display = 'none';
+  }
+}
+function nextTutorial() {
+  page += 1;
+  updatePages();
+}
+function prevTutorial() {
+  if (page > 1) page -= 1;
+  updatePages();
+}
+</script>
+
+<script>
+function launchTutorial() {
+  document.getElementById('entryPopup').remove();
+  document.getElementById('introOverlay').style.display = 'flex';
+}
+function skipTutorial() {
+  const overlay = document.getElementById('introOverlay');
+  const popup = document.getElementById('entryPopup');
+  if (overlay) overlay.remove();
+  if (popup) popup.remove();
+}
+</script>
+</body>
+</html>
