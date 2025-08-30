@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How To Start?</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+          box-sizing: border-box;
+      }
+
+      html, body {
+          position: relative;
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          background: black;
+          font-family: "Orbitron", sans-serif;
+          overflow-x: hidden;
+          color: #0ff;
+          z-index: 1;
+      }
+
+      canvas#matrix {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          z-index: 0;
+          pointer-events: none;
+          opacity: 0.3;
+      }
+
+      header {
+          text-align: center;
+          padding: 2rem 1rem 1rem;
+      }
+
+      h1.neon {
+          font-size: clamp(1.5rem, 5vw, 2.5rem);
+          color: #0ff;
+          text-shadow: 0 0 5px #0ff, 0 0 15px #0ff, 0 0 30px #08f;
+          animation: flicker 1.5s infinite alternate;
+      }
+
+      @keyframes flicker {
+          0% { opacity: 1; }
+          50% { opacity: 0.85; }
+          100% { opacity: 1; }
+      }
+
+      /* Neon Text Box Styles */
+      .neon-textbox {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          max-width: 600px;
+          margin: 2rem auto;
+          padding: 2rem;
+          background: rgba(0, 0, 0, 0.6);
+          border: 2px solid #0ff;
+          border-radius: 12px;
+          box-shadow:
+              0 0 10px #0ff,
+              0 0 20px #0ff,
+              inset 0 0 10px rgba(0, 255, 255, 0.1);
+          animation: neon-pulse 2s ease-in-out infinite alternate;
+          position: relative;
+          z-index: 2;
+      }
+
+      @keyframes neon-pulse {
+          0% {
+              box-shadow:
+                  0 0 10px #0ff,
+                  0 0 20px #0ff,
+                  inset 0 0 10px rgba(0, 255, 255, 0.1);
+          }
+          100% {
+              box-shadow:
+                  0 0 20px #0ff,
+                  0 0 40px #0ff,
+                  inset 0 0 20px rgba(0, 255, 255, 0.2);
+          }
+      }
+      }
+
+      .neon-textbox h2 {
+          color: #0ff;
+          font-size: clamp(1.2rem, 4vw, 1.8rem);
+          margin-bottom: 1rem;
+          text-shadow: 0 0 10px #0ff;
+          text-align: center;
+      }
+
+      .neon-textbox p {
+          color: #0ff;
+          font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+          line-height: 1.6;
+          text-align: center;
+          margin: 0.5rem 0;
+          text-shadow: 0 0 5px #0ff;
+      }
+
+      /* Shortcuts Grid Styles */
+      .shortcuts-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.5rem;
+          max-width: 800px;
+          margin: 2rem auto;
+          padding: 0 2rem;
+          z-index: 2;
+          position: relative;
+      }
+
+      .shortcut-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 70px;
+          padding: 1rem;
+          color: #0ff;
+          font-size: clamp(0.8rem, 2vw, 1rem);
+          text-decoration: none;
+          border: 2px solid #0ff;
+          border-radius: 8px;
+          background-color: rgba(0, 0, 0, 0.4);
+          box-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          position: relative;
+          overflow: hidden;
+          text-align: center;
+      }
+
+      .shortcut-button::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 100%;
+          border: 2px solid #0ff;
+          box-shadow: 0 0 10px #0ff;
+          opacity: 0;
+          animation: border-flicker 2s infinite;
+      }
+
+      .shortcut-button:hover::before {
+          opacity: 1;
+      }
+
+      .shortcut-button:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 15px #0ff, 0 0 25px #0ff;
+      }
+
+      @media (max-width: 768px) {
+          .shortcuts-grid {
+              grid-template-columns: 1fr;
+              gap: 1rem;
+          }
+      }
+
+      .button-grid {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding-bottom: 2rem;
+          margin-top: 2rem;
+      }
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 300px;
+          height: 80px;
+          margin: 10px 0;
+          color: #0ff;
+          font-size: 1rem;
+          text-decoration: none;
+          border: 2px solid #0ff;
+          border-radius: 8px;
+          background-color: rgba(0, 0, 0, 0.4);
+          box-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          position: relative;
+          overflow: hidden;
+      }
+
+      .neon-button::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 100%;
+          border: 2px solid #0ff;
+          box-shadow: 0 0 10px #0ff;
+          opacity: 0;
+          animation: border-flicker 2s infinite;
+      }
+
+      .neon-button:hover::before {
+          opacity: 1;
+      }
+
+      .neon-button:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 15px #0ff, 0 0 25px #0ff;
+      }
+
+      @keyframes border-flicker {
+          0%, 100% { opacity: 0.8; }
+          50% { opacity: 0.2; }
+      }
+
+      .neon-button2 {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 300px;
+          height: 80px;
+          margin: 10px 0;
+          color: #0ff;
+          font-size: 1rem;
+          text-decoration: none;
+          border: 2px solid #0ff;
+          border-radius: 8px;
+          background-color: rgba(0, 0, 0, 0.4);
+          box-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          position: relative;
+          overflow: hidden;
+      }
+
+      .neon-button2::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 100%;
+          border: 2px solid #0ff;
+          box-shadow: 0 0 10px #0ff;
+          opacity: 0;
+          animation: border-flicker 2s infinite;
+      }
+
+      .neon-button2:hover::before {
+          opacity: 1;
+      }
+
+      .neon-button2:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 15px #0ff, 0 0 25px #0ff;
+      }
+
+      footer {
+          text-align: center;
+          padding: 2rem;
+      }
+
+      .ig-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 1rem;
+          background: rgba(0, 0, 0, 0.7);
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          text-decoration: none;
+          color: #f0f;
+          box-shadow: 0 0 10px #f0f, 0 0 20px #f0f;
+          transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .ig-link img {
+          width: 18px;
+          height: 18px;
+      }
+
+      .ig-link:hover {
+          transform: scale(1.1);
+          box-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
+      }
+
+      .ib-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 1rem;
+          background: rgba(0, 0, 0, 0.7);
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          text-decoration: none;
+          color: rgb(119, 0, 255);
+          box-shadow: 0 0 10px rgb(136, 0, 255), 0 0 20px rgb(170, 0, 255);
+          transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .ib-link img {
+          width: 18px;
+          height: 18px;
+      }
+
+      .ib-link:hover {
+          transform: scale(1.1);
+          box-shadow: 0 0 20px rgb(162, 0, 255), 0 0 40px rgb(144, 0, 255);
+      }
+
+      .gallery {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 1rem;
+          padding: 2rem;
+          justify-items: center;
+          z-index: 2;
+          position: relative;
+      }
+
+      .gallery img {
+          width: 100%;
+          max-width: 250px;
+          border: 2px solid #0ff;
+          border-radius: 10px;
+          box-shadow: 0 0 10px #0ff;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .gallery img:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 20px #0ff;
+      }
+
+      .telegram-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.1rem;
+          background: rgba(0, 0, 0, 0.7);
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          text-decoration: none;
+          color: #0088cc;
+          box-shadow: 0 0 10px #0088cc, 0 0 20px #0088cc;
+          transition: transform 0.3s, box-shadow 0.3s;
+          margin-bottom: 0.1rem;
+      }
+
+      .telegram-link img {
+          width: 18px;
+          height: 18px;
+      }
+
+      .telegram-link:hover {
+          transform: scale(1.1);
+          box-shadow: 0 0 20px #0088cc, 0 0 40px #0088cc;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="matrix"></canvas>
+
+    <header>
+      <h1 class="neon">How to Start?</h1>
+    </header>
+
+    <!-- New Neon Text Box -->
+    <div class="neon-textbox">
+      <h2>Welcome To CPMGARAGESTUDIOS!</h2>
+      <p>
+        We're happy to have you apart of this community and ready to inspire and
+        assist you in the world of Game Guardian modding / GG Lua coding!
+      </p>
+      <p>
+        If your a beginniner or master you will find many useful tools and
+        tricks here, a perfect way to start learning and to make better use of
+        your time.
+      </p>
+      <p>
+        GameGuardian is a popular Android app that allows users to modify the
+        content of Android games and apps in real-time, such as changing health,
+        currency, or stats. It works by scanning and altering the memory of
+        running apps. GG Lua scripting is a feature within GameGuardian that
+        enables users to automate tasks, create cheats, or design custom hacks
+        using the Lua programming language. This scripting function gives users
+        more control and flexibility by allowing them to write custom scripts
+        for specific game modifications or tasks.
+      </p>
+      <p>
+        Below you will find buttons leading to different pages. For beginners
+        its recommended to go through them one at a time, if you are experienced
+        its okay to jump around to the buttons explaining our tools and more
+        advanced resources.
+      </p>
+    </div>
+
+    <!-- Shortcuts Grid -->
+    <div class="shortcuts-grid">
+      <a href="step1.html" class="shortcut-button">Step 1: Getting Started</a>
+      <a href="step2.html" class="shortcut-button">Step 2: Setup Process</a>
+      <a href="step3.html" class="shortcut-button">Step 3: Video Tutorials</a>
+      <a href="step4.html" class="shortcut-button">Step 4: Advanced Tools/Resources</a>
+      <a href="step5.html" class="shortcut-button">Step 5: Cant Mod? Check this page out!</a>
+    </div>
+
+    <main class="button-grid">
+      <a href="#" onclick="flipToIndex()" class="neon-button2"
+        >Back to Main Menu</a
+      >
+    </main>
+
+    <footer>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.7rem;
+        "
+      ></div>
+    </footer>
+
+    <script>
+      const canvas = document.getElementById("matrix");
+      const ctx = canvas.getContext("2d");
+      const matrix = "1010101111000010101010011101010101";
+      const fontSize = 14;
+      let columns;
+      let drops;
+
+      function resizeMatrixCanvas() {
+        canvas.width = window.innerWidth;
+        const fullHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight,
+          document.body.offsetHeight,
+          document.documentElement.offsetHeight,
+          document.body.clientHeight,
+          document.documentElement.clientHeight
+        );
+        canvas.height = fullHeight;
+        columns = Math.floor(canvas.width / fontSize);
+        drops = Array(columns).fill(1);
+      }
+
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00faff";
+        ctx.font = fontSize + "px Courier New";
+        ctx.textBaseline = "top";
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      window.addEventListener("resize", resizeMatrixCanvas);
+      window.addEventListener("load", () => {
+        resizeMatrixCanvas();
+        setInterval(draw, 120);
+      });
+    </script>
+
+    <script>
+      function flipToIndex() {
+        document.body.style.transition =
+          "transform 0.6s ease-out, opacity 0.6s ease-out";
+        document.body.style.transform = "rotateY(90deg) scale(0.5)";
+        document.body.style.opacity = "0";
+        setTimeout(() => {
+          window.location.href = "main.html";
+        }, 500);
+      }
+    </script>
+
+    <audio id="bg-music" autoplay loop preload="auto">
+      <source src="assets/audio/music.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+  </body>
+</html>
+

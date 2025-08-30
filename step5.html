@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Other - Step 5</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: black;
+        font-family: "Orbitron", sans-serif;
+        overflow-x: hidden;
+        color: #0ff;
+        z-index: 1;
+      }
+
+      canvas#matrix {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.3;
+      }
+
+      header {
+        text-align: center;
+        padding: 2rem 1rem 1rem;
+      }
+
+      h1.neon {
+        font-size: clamp(1.5rem, 5vw, 2.5rem);
+        color: #0ff;
+        text-shadow: 0 0 5px #0ff, 0 0 15px #0ff, 0 0 30px #08f;
+        animation: flicker 1.5s infinite alternate;
+      }
+
+      @keyframes flicker {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.85;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Neon Text Box Styles */
+      .neon-textbox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: rgba(0, 0, 0, 0.6);
+        border: 2px solid #0ff;
+        border-radius: 12px;
+        box-shadow: 0 0 10px #0ff, 0 0 20px #0ff,
+          inset 0 0 10px rgba(0, 255, 255, 0.1);
+        animation: neon-pulse 2s ease-in-out infinite alternate;
+        position: relative;
+        z-index: 2;
+      }
+
+      @keyframes neon-pulse {
+        0% {
+          box-shadow: 0 0 10px #0ff, 0 0 20px #0ff,
+            inset 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+        100% {
+          box-shadow: 0 0 20px #0ff, 0 0 40px #0ff,
+            inset 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+      }
+
+      .neon-textbox h2 {
+        color: #0ff;
+        font-size: clamp(1.2rem, 4vw, 1.8rem);
+        margin-bottom: 1rem;
+        text-shadow: 0 0 10px #0ff;
+        text-align: center;
+      }
+
+      .neon-textbox p {
+        color: #0ff;
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+        line-height: 1.6;
+        text-align: center;
+        margin: 0.5rem 0;
+        text-shadow: 0 0 5px #0ff;
+      }
+
+      /* Download Links Styles */
+      .download-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+        z-index: 2;
+        position: relative;
+      }
+
+      .download-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 350px;
+        height: 70px;
+        color: #0ff;
+        font-size: 1rem;
+        text-decoration: none;
+        border: 2px solid #0ff;
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+      }
+
+      .download-button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        border: 2px solid #0ff;
+        box-shadow: 0 0 10px #0ff;
+        opacity: 0;
+        animation: border-flicker 2s infinite;
+      }
+
+      .download-button:hover::before {
+        opacity: 1;
+      }
+
+      .download-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px #0ff, 0 0 25px #0ff;
+      }
+
+      @keyframes border-flicker {
+        0%,
+        100% {
+          opacity: 0.8;
+        }
+        50% {
+          opacity: 0.2;
+        }
+      }
+
+      /* Navigation Buttons */
+      .nav-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem;
+        margin-top: 2rem;
+      }
+
+      .nav-button-left {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 200px;
+        height: 60px;
+        color: #0ff;
+        font-size: 1rem;
+        text-decoration: none;
+        border: 2px solid #0ff;
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .nav-button-right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 200px;
+        height: 60px;
+        color: #0ff;
+        font-size: 1rem;
+        text-decoration: none;
+        border: 2px solid #0ff;
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .nav-button-left::before,
+      .nav-button-right::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        border: 2px solid #0ff;
+        box-shadow: 0 0 10px #0ff;
+        opacity: 0;
+        animation: border-flicker 2s infinite;
+      }
+
+      .nav-button-left:hover::before,
+      .nav-button-right:hover::before {
+        opacity: 1;
+      }
+
+      .nav-button-left:hover,
+      .nav-button-right:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px #0ff, 0 0 25px #0ff;
+      }
+
+      @media (max-width: 768px) {
+        .nav-buttons {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .download-button {
+          width: 300px;
+        }
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="matrix"></canvas>
+
+    <header>
+      <h1 class="neon">Step 5: Other Resources</h1>
+    </header>
+
+    <!-- Information Text Box -->
+    <div class="neon-textbox">
+      <h2>Cant Mod? Dont worry! Here is some more resoures anyone can use!</h2>
+      <p>
+        1. Daily Raffle - We will give away 1 account per day with 1 GG car,
+        500k coins , and 50m. Every week will be bigger prizes and if donation
+        goals are met we will do full blows accounts and more! *Coming Soon!*
+      </p>
+      <p>
+        2. Mod APK's - For android users only... Featuring exciting and crazy
+        mods such as CyberTrucks and Teslas to Planes and Helicopters!
+      </p>
+      <p>
+        3. Trusted Sellers - Here you will find some verified sellers, feel free
+        to reach out they will get you covered for all your modded car and
+        account needs!
+      </p>
+
+      <p>
+        4. Scammer News - Got scammed? Lets work together to stop scammers and
+        build a genuine CPM community. Looking to hire a Scam Admin as well for
+        free perks!
+      </p>
+      <p>
+        5. Color Codes - Want that perfect paint job, or a specific rim color ?
+        This color codes page got you covered! * Coming Soon *
+      </p>
+      <p>
+        Access these tools with the buttons below, and thats all for the tutorial, we hope you enjoy the rest of this platform thanks for being apart of the community and visiting CPMGARAGESTUDIOS!
+      </p>
+    </div>
+
+    <!-- Download Links Section -->
+    <div class="download-section">
+      <a href="daily-raffle.html" class="download-button" download
+        >Daily Raffle</a
+      >
+      <a href="mod-apks.html" class="download-button" download>Mod APK's</a>
+
+      <a href="trusted-sellers.html" class="download-button" download
+        >Trusted Sellers</a
+      >
+      <a href="scammer-news.html" class="download-button" download
+        >Scammer News</a
+      >
+
+      <a href="colorcodes.html" class="download-button" download
+        >Color Codes</a
+      >
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <a href="#" onclick="flipToHowToStart()" class="nav-button-left"
+        >← Back</a
+      >
+      <a href="howto-start.html" class="nav-button-right">Back to Menu</a>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("matrix");
+      const ctx = canvas.getContext("2d");
+      const matrix = "1010101111000010101010011101010101";
+      const fontSize = 14;
+      let columns;
+      let drops;
+
+      function resizeMatrixCanvas() {
+        canvas.width = window.innerWidth;
+        const fullHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight,
+          document.body.offsetHeight,
+          document.documentElement.offsetHeight,
+          document.body.clientHeight,
+          document.documentElement.clientHeight
+        );
+        canvas.height = fullHeight;
+        columns = Math.floor(canvas.width / fontSize);
+        drops = Array(columns).fill(1);
+      }
+
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00faff";
+        ctx.font = fontSize + "px Courier New";
+        ctx.textBaseline = "top";
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = matrix.charAt(Math.floor(Math.random() * matrix.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      window.addEventListener("resize", resizeMatrixCanvas);
+      window.addEventListener("load", () => {
+        resizeMatrixCanvas();
+        setInterval(draw, 120);
+      });
+    </script>
+
+    <script>
+      function flipToHowToStart() {
+        document.body.style.transition =
+          "transform 0.6s ease-out, opacity 0.6s ease-out";
+        document.body.style.transform = "rotateY(90deg) scale(0.5)";
+        document.body.style.opacity = "0";
+        setTimeout(() => {
+          window.location.href = "step4.html"; // Change this to your "How to Start" page filename
+        }, 500);
+      }
+    </script>
+
+    <audio id="bg-music" autoplay loop preload="auto">
+      <source src="assets/audio/music.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+  </body>
+</html>

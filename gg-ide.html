@@ -1,12 +1,70 @@
 <!DOCTYPE html>
-
 <html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Lua Matrix IDE</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&amp;display=swap" rel="stylesheet"/>
-<style>
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Lua Matrix IDE
+  </title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&amp;display=swap" rel="stylesheet"/>
+  <!-- Anti-scraping and security headers -->
+  <meta content="noindex, nofollow, noarchive, nosnippet, noimageindex" name="robots"/>
+  <meta content="DENY" http-equiv="X-Frame-Options"/>
+  <meta content="nosniff" http-equiv="X-Content-Type-Options"/>
+  <meta content="no-referrer" http-equiv="Referrer-Policy"/>
+  <meta content="interest-cohort=()" http-equiv="Permissions-Policy"/>
+  <style>
+   /* Anti-selection and copy protection - Mobile optimized */
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Allow selection in editor and inputs for mobile functionality */
+    .monaco-editor, .monaco-editor *, 
+    input, textarea, 
+    .search-input,
+    #searchInput, #replaceInput {
+      -webkit-user-select: text !important;
+      -moz-user-select: text !important;
+      -ms-user-select: text !important;
+      user-select: text !important;
+      -webkit-touch-callout: default !important;
+    }
+
+    /* Mobile zoom fix - prevent zoom issues on Android */
+    @media (max-width: 768px) {
+      html {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        touch-action: manipulation;
+      }
+      
+      /* Mobile-specific editor fixes */
+      .monaco-editor {
+        touch-action: pan-x pan-y;
+      }
+      
+      /* Ensure mobile copy/paste works */
+      .monaco-editor .view-lines {
+        -webkit-user-select: text !important;
+        user-select: text !important;
+      }
+    }
+
+    /* Disable iOS zoom but allow Android zoom */
+    @supports (-webkit-touch-callout: none) {
+      /* iOS specific - disable problematic zoom */
+      input, textarea, select {
+        font-size: 16px !important;
+        transform: scale(1);
+      }
+    }
+
     html, body {
       height: 100%;
       margin: 0;
@@ -44,7 +102,7 @@
       z-index: 10;
       height: 60px;
       background: rgba(0, 0, 0, 0.85);
-      border-bottom: 2px solid #00ffcc;
+      border-bottom: 2px solid #0ff;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -65,7 +123,7 @@
       left: 0;
       width: 100%;
       background: rgba(0, 0, 0, 0.85);
-      border-top: 2px solid #00ffcc;
+      border-top: 2px solid #0ff;
       padding: 10px 15px;
       display: flex;
       justify-content: space-between;
@@ -93,7 +151,7 @@
       backdrop-filter: blur(15px);
       border-radius: 10px;
       overflow: hidden;
-      border: 1px solid rgba(0, 255, 204, 0.3);
+      border: 1px solid rgba(0, 255, 255, 0.3);
     }
 
     /* Search Panel Styles */
@@ -103,13 +161,13 @@
       right: 20px;
       width: 350px;
       background: rgba(0, 0, 0, 0.95);
-      border: 2px solid #00ffcc;
+      border: 2px solid #0ff;
       border-radius: 10px;
       padding: 15px;
       z-index: 20;
       backdrop-filter: blur(15px);
       display: none;
-      box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
       cursor: move;
       user-select: none;
     }
@@ -121,8 +179,18 @@
 
     #searchPanel.dragging {
       transition: none;
-      box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
-      border-color: #00ffff;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+      border-color: #0ff;
+    }
+
+    #searchPanel.minimized {
+      height: 50px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    #searchPanel.minimized .search-body {
+      display: none !important;
     }
 
     @keyframes searchSlideIn {
@@ -141,10 +209,27 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
-      color: #00ffcc;
+      color: #0ff;
       font-weight: 600;
       cursor: move;
       user-select: none;
+    }
+
+    .search-minimize {
+      background: none;
+      border: none;
+      color: #0ff;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 3px;
+      transition: all 0.3s;
+      margin-right: 5px;
+    }
+
+    .search-minimize:hover {
+      background: #0ff;
+      color: #000;
     }
 
     .search-close {
@@ -169,7 +254,7 @@
 
     .search-input-group label {
       display: block;
-      color: #00ffcc;
+      color: #0ff;
       font-size: 12px;
       margin-bottom: 5px;
       font-weight: 600;
@@ -178,8 +263,8 @@
     .search-input {
       width: 100%;
       background: rgba(0, 0, 0, 0.7);
-      border: 1px solid #00ffcc;
-      color: #00ffcc;
+      border: 1px solid #0ff;
+      color: #0ff;
       padding: 8px 10px;
       border-radius: 5px;
       font-family: 'Orbitron', sans-serif;
@@ -189,7 +274,7 @@
 
     .search-input:focus {
       outline: none;
-      border-color: #00ffff;
+      border-color: #0ff;
       box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
     }
 
@@ -202,8 +287,8 @@
 
     .search-btn {
       background: rgba(0, 0, 0, 0.8);
-      border: 1px solid #00ffcc;
-      color: #00ffcc;
+      border: 1px solid #0ff;
+      color: #0ff;
       padding: 6px 12px;
       border-radius: 5px;
       font-size: 11px;
@@ -215,9 +300,9 @@
     }
 
     .search-btn:hover {
-      background: #00ffcc;
+      background: #0ff;
       color: #000;
-      box-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
+      box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
     }
 
     .search-btn:disabled {
@@ -226,12 +311,12 @@
     }
 
     .search-info {
-      color: #00ffcc;
+      color: #0ff;
       font-size: 11px;
       text-align: center;
       margin-top: 10px;
       padding: 5px;
-      background: rgba(0, 255, 204, 0.1);
+      background: rgba(0, 255, 255, 0.1);
       border-radius: 5px;
     }
 
@@ -246,18 +331,18 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      color: #00ffcc;
+      color: #0ff;
       cursor: pointer;
     }
 
     .search-checkbox input[type="checkbox"] {
-      accent-color: #00ffcc;
+      accent-color: #0ff;
     }
 
     button {
       background: rgba(0, 0, 0, 0.8);
-      border: 1px solid #00ffcc;
-      color: #00ffcc;
+      border: 1px solid #0ff;
+      color: #0ff;
       padding: 8px 16px;
       border-radius: 5px;
       font-size: 12px;
@@ -268,20 +353,22 @@
     }
 
     button:hover {
-      background: #00ffcc;
+      background: #0ff;
       color: #000;
-      box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
     }
 
     #charCount {
-      color: #00ffcc;
+      color: #0ff;
       font-size: 14px;
       font-weight: 600;
-      text-shadow: 0 0 5px #00ffcc;
+      text-shadow: 0 0 5px #0ff;
       background: rgba(0, 0, 0, 0.6);
       padding: 5px 10px;
       border-radius: 5px;
-      border: 1px solid rgba(0, 255, 204, 0.3);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      white-space: nowrap;
+      min-width: 80px;
     }
 
     /* Monaco Editor Transparent Fix */
@@ -293,20 +380,20 @@
     .view-lines {
       background: transparent !important;
       background-color: transparent !important;
-      color: #00ffcc !important;
+      color: #0ff !important;
     }
 
     .monaco-editor .cursor {
-      background-color: #00ffff !important;
+      background-color: #0ff !important;
       animation: electricPulse 1.2s infinite;
-      box-shadow: 0 0 6px #00ffff, 0 0 12px #00ffff;
+      box-shadow: 0 0 6px #0ff, 0 0 12px #0ff;
     }
 
     .cursor-trail {
       position: absolute;
       width: 2px;
       height: 1em;
-      background-color: #00ffff;
+      background-color: #0ff;
       opacity: 0.5;
       pointer-events: none;
       border-radius: 1px;
@@ -318,7 +405,7 @@
       position: absolute;
       width: 3px;
       height: 3px;
-      background-color: #00ffff;
+      background-color: #0ff;
       border-radius: 50%;
       animation: sparkFade 0.6s ease-out forwards;
       pointer-events: none;
@@ -348,7 +435,7 @@
     }
     .search-highlight-current {
       background-color: rgba(0, 255, 255, 0.4) !important;
-      border: 2px solid #00ffff !important;
+      border: 2px solid #0ff !important;
     }
     .search-highlight-inline {
       background-color: rgba(255, 255, 0, 0.3) !important;
@@ -386,13 +473,18 @@
       }
       
       #charCount {
-        font-size: 12px;
-        padding: 4px 8px;
+        font-size: 11px;
+        padding: 4px 6px;
+        min-width: 70px;
       }
       
       .toolbar-left, .toolbar-right,
       .footer-left, .footer-right {
         gap: 8px;
+      }
+
+      .toolbar-right {
+        flex-shrink: 0;
       }
     }
 
@@ -407,7 +499,7 @@
   top: 8px;
   right: 10px;
   z-index: 15;
-  background: #00ffcc;
+  background: #0ff;
   color: #000;
   border: none;
   padding: 6px 12px;
@@ -424,7 +516,7 @@
   width: 300px;
   height: 100%;
   background: rgba(0, 0, 0, 0.95);
-  border-left: 2px solid #00ffcc;
+  border-left: 2px solid #0ff;
   z-index: 999;
   transition: right 0.3s ease-in-out;
   padding: 20px 15px;
@@ -444,7 +536,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  color: #00ffcc;
+  color: #0ff;
   font-weight: bold;
   font-size: 16px;
 }
@@ -454,17 +546,17 @@
 }
 
 .menu-section-title {
-  color: #00ffcc;
+  color: #0ff;
   font-weight: bold;
   margin-bottom: 8px;
   padding: 5px 0;
-  border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
   font-size: 14px;
 }
 
 .mod-inject-item {
-  background: rgba(0, 255, 204, 0.1);
-  border: 1px solid rgba(0, 255, 204, 0.3);
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 10px;
@@ -479,7 +571,7 @@
 }
 
 .mod-inject-title {
-  color: #00ffcc;
+  color: #0ff;
   font-weight: bold;
   font-size: 13px;
   display: flex;
@@ -488,7 +580,7 @@
 }
 
 .mod-dropdown-arrow {
-  color: #00ffcc;
+  color: #0ff;
   font-size: 14px;
   transition: transform 0.3s ease;
   user-select: none;
@@ -503,7 +595,7 @@
   gap: 5px;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid rgba(0, 255, 204, 0.2);
+  border-top: 1px solid rgba(0, 255, 255, 0.2);
 }
 
 .mod-inject-buttons.expanded {
@@ -540,16 +632,22 @@
   color: #000;
 }
 
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
-
-<style>
-#introOverlay {
+/* Small Fullscreen Button */
+.fullscreen-btn {
+  padding: 6px 10px !important;
+  font-size: 11px !important;
+  min-width: auto !important;
+}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js">
+  </script>
+  <style>
+   #introOverlay {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.9);
-  color: #00ffcc;
+  color: #0ff;
   font-family: 'Orbitron', sans-serif;
   display: flex;
   align-items: center;
@@ -560,10 +658,10 @@
   width: 85%;
   max-width: 760px;
   background: #000;
-  border: 2px solid #00ffcc;
+  border: 2px solid #0ff;
   border-radius: 14px;
   padding: 24px 30px;
-  box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
   animation: fadeIn 0.6s ease;
 }
 .tutorialPage {
@@ -574,7 +672,7 @@
 }
 #tutorialBox h2 {
   margin-top: 0;
-  text-shadow: 0 0 5px #00ffcc;
+  text-shadow: 0 0 5px #0ff;
 }
 #tutorialBox ul, #tutorialBox p {
   font-size: 14px;
@@ -587,7 +685,7 @@
   border-radius: 6px;
   font-size: 13px;
   margin-top: 10px;
-  border: 1px solid #00ffcc;
+  border: 1px solid #0ff;
 }
 #tutorialNav {
   display: flex;
@@ -598,367 +696,763 @@
   padding: 10px 20px;
   font-family: 'Orbitron', sans-serif;
   font-weight: bold;
-  border: 1px solid #00ffcc;
+  border: 1px solid #0ff;
   background: #000;
-  color: #00ffcc;
+  color: #0ff;
   cursor: pointer;
   transition: 0.3s;
 }
 #tutorialNav button:hover {
-  background: #00ffcc;
+  background: #0ff;
   color: #000;
-  box-shadow: 0 0 12px #00ffcc;
+  box-shadow: 0 0 12px #0ff;
 }
 @keyframes fadeIn {
   from {opacity: 0; transform: scale(0.95);}
   to {opacity: 1; transform: scale(1);}
 }
-</style>
-</head>
-<body>
-<div id="entryPopup" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000d;color:#00ffcc;font-family:'Orbitron',sans-serif;display:flex;align-items:center;justify-content:center;z-index:99999;">
-<div style="background:#000;border:2px solid #00ffcc;padding:40px;border-radius:12px;max-width:600px;width:90%;text-align:center;box-shadow:0 0 20px #00ffcc;">
-<h2 style="font-size:26px;text-shadow:0 0 6px #00ffcc;">🧬 Welcome to the Lua Matrix</h2>
-<p style="margin-top:15px;font-size:14px;">
-      This is the first and only IDE built for <strong>Game Guardian</strong> scripters inside Car Parking Multiplayer.
+  </style>
+ </head>
+ <body>
+  <div id="entryPopup" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000d;color:#0ff;font-family:'Orbitron',sans-serif;display:flex;align-items:center;justify-content:center;z-index:99999;">
+   <div style="background:#000;border:2px solid #0ff;padding:40px;border-radius:12px;max-width:600px;width:90%;text-align:center;box-shadow:0 0 20px #0ff;">
+    <h2 style="font-size:26px;text-shadow:0 0 6px #0ff;">
+     🧬 Welcome to the Lua Matrix
+    </h2>
+    <p style="margin-top:15px;font-size:14px;">
+     This is the first and only IDE built for
+     <strong>
+      Game Guardian
+     </strong>
+     scripters inside Car Parking Multiplayer.
       Whether you're brand new or an elite modder, this forge is yours.
     </p>
-<p style="margin-top:10px;font-size:13px;">
-      Want a walkthrough of scripting, scanning, loading, saving, autocomplete, and GG functions?
+    <p style="margin-top:10px;font-size:13px;">
+     Want a walkthrough of scripting, scanning, loading, saving, autocomplete, and GG functions?
     </p>
-<div style="margin-top:25px;display:flex;justify-content:center;gap:20px;">
-<button onclick="launchTutorial()" style="padding:10px 22px;background:#000;border:2px solid #00ffcc;color:#00ffcc;font-family:'Orbitron';cursor:pointer;">👨‍🏫 Yes, Teach Me</button>
-<button onclick="skipTutorial()" style="padding:10px 22px;background:#000;border:2px solid #00ffcc;color:#00ffcc;font-family:'Orbitron';cursor:pointer;">😎 Nah, I'm a Pro</button>
-</div>
-</div>
-</div>
-
-<div id="introOverlay">
-<div id="tutorialBox">
-<div class="tutorialPage active" id="page1">
-<h2>🚀 Welcome to the Lua Matrix IDE</h2>
-<p>This is the world's first dedicated Game Guardian IDE, custom-built for modders in Car Parking Multiplayer.</p>
-<ul>
-<li>Write and test Lua scripts using native GG functions</li>
-<li>Use smart autocomplete, load templates, and preview mods</li>
-<li>Export ready-to-run .lua files</li>
-</ul>
-<p>Let’s dive into how this forge works. 🔧</p>
-</div>
-<div class="tutorialPage" id="page2">
-<h2>🧠 What is Game Guardian Scripting?</h2>
-<p>Game Guardian is a memory scanner and editor for Android games. Using Lua, you automate memory edits with precision.</p>
-<pre>
+        <h3 style="font-size:15px;text-shadow:0 0 6px #0ff;">
+     Use PC/Laptop for best experience!
+    </h3>
+    <div style="margin-top:25px;display:flex;justify-content:center;gap:20px;">
+     <button onclick="launchTutorial()" style="padding:10px 22px;background:#000;border:2px solid #0ff;color:#0ff;font-family:'Orbitron';cursor:pointer;">
+      👨‍🏫 Yes, Teach Me
+     </button>
+     <button onclick="skipTutorial()" style="padding:10px 22px;background:#000;border:2px solid #0ff;color:#0ff;font-family:'Orbitron';cursor:pointer;">
+      😎 Nah, I'm a Pro
+     </button>
+    </div>
+   </div>
+  </div>
+  <div id="introOverlay">
+   <div id="tutorialBox">
+    <div class="tutorialPage active" id="page1">
+     <h2>
+      🚀 Welcome to the Lua Matrix IDE
+     </h2>
+     <p>
+      This is the world's first dedicated Game Guardian IDE, custom-built for modders in Car Parking Multiplayer.
+     </p>
+     <ul>
+      <li>
+       Write and test Lua scripts using native GG functions
+      </li>
+      <li>
+       Use smart autocomplete, load templates, and preview mods
+      </li>
+      <li>
+       Export ready-to-run .lua files
+      </li>
+     </ul>
+     <p>
+      Let's dive into how this forge works. 🔧
+     </p>
+    </div>
+    <div class="tutorialPage" id="page2">
+     <h2>
+      🧠 What is Game Guardian Scripting?
+     </h2>
+     <p>
+      Game Guardian is a memory scanner and editor for Android games. Using Lua, you automate memory edits with precision.
+     </p>
+     <pre>
 gg.setRanges(gg.REGION_ANONYMOUS)
 gg.searchNumber("100", gg.TYPE_DWORD)
 gg.getResults(30)
 gg.editAll("999", gg.TYPE_DWORD)
   </pre>
-<p>This IDE helps you create, edit, and deploy these types of scripts easily.</p>
-</div>
-<div class="tutorialPage" id="page3">
-<h2>🧰 GG Function Examples</h2>
-<ul>
-<li><code>gg.alert("Welcome")</code> – popup window</li>
-<li><code>gg.toast("Loading")</code> – overlay toast</li>
-<li><code>gg.searchNumber("123", gg.TYPE_DWORD)</code> – scan memory</li>
-<li><code>gg.setRanges(gg.REGION_C_ALLOC)</code> – filter memory regions</li>
-<li><code>gg.getResults(100)</code> – grab results</li>
-<li><code>gg.editAll("999", gg.TYPE_DWORD)</code> – modify values</li>
-</ul>
-</div>
-<div class="tutorialPage" id="page4">
-<h2>📂 Saving, Loading, Importing</h2>
-<p><strong>⚠️ Loading a mod or template will ERASE your current code.</strong></p>
-<ul>
-<li>💾 Use <strong>Save</strong> to export to .lua format</li>
-<li>📤 Use <strong>Load</strong> to import .lua mods</li>
-<li>🧠 Templates drop in pre-built structures</li>
-</ul>
-<p>Use these options wisely before building a final hack.</p>
-</div>
-<div class="tutorialPage" id="page5">
-<h2>🧩 Snippets &amp; Autocomplete</h2>
-<p>Typing <code>gg.</code> in the IDE shows smart suggestions like:</p>
-<ul>
-<li><code>gg.setVisible()</code></li>
-<li><code>gg.sleep(500)</code></li>
-<li><code>gg.choice()</code></li>
-</ul>
-<p>Click 🧠 GG Snippet to drop function templates into your script with one tap.</p>
-</div>
-<div class="tutorialPage" id="page6">
-<h2>🔄 Undo System</h2>
-<p>Every change you make is tracked:</p>
-<ul>
-<li>↩️ Undo restores to last saved point</li>
-<li>(Cant undo mod/template injects)</li>
-</ul>
-<p>This is useful when debugging scripts or testing logic flow.</p>
-</div>
-<div class="tutorialPage" id="page7">
-<h2>📜 Writing Clean Code</h2>
-<p>Tips for clean GG scripting:</p>
-<ul>
-<li>Always close functions properly</li>
-<li>Indent with spaces for clarity</li>
-<li>Group scans, edits, and results</li>
-<li>Use comments: <code>-- this edits coins</code></li>
-</ul>
-</div>
-<div class="tutorialPage" id="page8">
-<h2>📱 Mobile IDE Tips</h2>
-<ul>
-<li>Tap lines to reposition cursor</li>
-<li>Use Save before switching tabs</li>
-<li>Zoom in/out with pinch if needed</li>
-<li>Double-tap snippets to insert fast</li>
-</ul>
-<p>This IDE is optimized for touchscreen editing!</p>
-</div>
-<div class="tutorialPage" id="page9">
-<h2>🛠️ Advanced Memory Tricks</h2>
-<ul>
-<li>Use multiple <code>gg.setRanges()</code> calls to scan multiple regions</li>
-<li>Loop edits with Lua <code>for</code> loops</li>
-<li>Use <code>gg.clearResults()</code> between scans</li>
-</ul>
-<pre>
+     <p>
+      This IDE helps you create, edit, and deploy these types of scripts easily.
+     </p>
+    </div>
+    <div class="tutorialPage" id="page3">
+     <h2>
+      🧰 GG Function Examples
+     </h2>
+     <ul>
+      <li>
+       <code>
+        gg.alert("Welcome")
+       </code>
+       – popup window
+      </li>
+      <li>
+       <code>
+        gg.toast("Loading")
+       </code>
+       – overlay toast
+      </li>
+      <li>
+       <code>
+        gg.searchNumber("123", gg.TYPE_DWORD)
+       </code>
+       – scan memory
+      </li>
+      <li>
+       <code>
+        gg.setRanges(gg.REGION_C_ALLOC)
+       </code>
+       – filter memory regions
+      </li>
+      <li>
+       <code>
+        gg.getResults(100)
+       </code>
+       – grab results
+      </li>
+      <li>
+       <code>
+        gg.editAll("999", gg.TYPE_DWORD)
+       </code>
+       – modify values
+      </li>
+     </ul>
+    </div>
+    <div class="tutorialPage" id="page4">
+     <h2>
+      📂 Saving, Loading, Importing
+     </h2>
+     <p>
+      <strong>
+       ⚠️ Loading a mod or template will ERASE your current code.
+      </strong>
+     </p>
+     <ul>
+      <li>
+       💾 Use
+       <strong>
+        Save
+       </strong>
+       to export to .lua format
+      </li>
+      <li>
+       📤 Use
+       <strong>
+        Load
+       </strong>
+       to import .lua mods
+      </li>
+      <li>
+       🧠 Templates drop in pre-built structures
+      </li>
+     </ul>
+     <p>
+      Use these options wisely before building a final hack.
+     </p>
+    </div>
+    <div class="tutorialPage" id="page5">
+     <h2>
+      🧩 Snippets &amp; Autocomplete
+     </h2>
+     <p>
+      Typing
+      <code>
+       gg.
+      </code>
+      in the IDE shows smart suggestions like:
+     </p>
+     <ul>
+      <li>
+       <code>
+        gg.setVisible()
+       </code>
+      </li>
+      <li>
+       <code>
+        gg.sleep(500)
+       </code>
+      </li>
+      <li>
+       <code>
+        gg.choice()
+       </code>
+      </li>
+     </ul>
+     <p>
+      Click 🧠 GG Snippet to drop function templates into your script with one tap.
+     </p>
+    </div>
+    <div class="tutorialPage" id="page6">
+     <h2>
+      🔄 Undo System
+     </h2>
+     <p>
+      Every change you make is tracked:
+     </p>
+     <ul>
+      <li>
+       ↩️ Undo restores to last saved point
+      </li>
+      <li>
+       (Cant undo mod/template injects)
+      </li>
+     </ul>
+     <p>
+      This is useful when debugging scripts or testing logic flow.
+     </p>
+    </div>
+    <div class="tutorialPage" id="page7">
+     <h2>
+      📜 Writing Clean Code
+     </h2>
+     <p>
+      Tips for clean GG scripting:
+     </p>
+     <ul>
+      <li>
+       Always close functions properly
+      </li>
+      <li>
+       Indent with spaces for clarity
+      </li>
+      <li>
+       Group scans, edits, and results
+      </li>
+      <li>
+       Use comments:
+       <code>
+        -- this edits coins
+       </code>
+      </li>
+     </ul>
+    </div>
+    <div class="tutorialPage" id="page8">
+     <h2>
+      📱⚠️ Desktop Recommended!
+     </h2>
+     <ul>
+      <li>
+       Use a PC/Laptop for full flawless experience!
+      </li>
+      <li>
+       Full copy/paste functionality
+      </li>
+      <li>
+       Full gg recommended functions functionality
+      </li>
+      <li>
+       P.S. Iphone has scrolling issues
+      </li>
+     </ul>
+     <p>
+      Its not like Iphone users coding anyway💀😂
+     </p>
+    </div>
+    <div class="tutorialPage" id="page9">
+     <h2>
+      🛠️ Advanced Memory Tricks
+     </h2>
+     <ul>
+      <li>
+       Use multiple
+       <code>
+        gg.setRanges()
+       </code>
+       calls to scan multiple regions
+      </li>
+      <li>
+       Loop edits with Lua
+       <code>
+        for
+       </code>
+       loops
+      </li>
+      <li>
+       Use
+       <code>
+        gg.clearResults()
+       </code>
+       between scans
+      </li>
+     </ul>
+     <pre>
 for i = 1, 5 do
   gg.searchNumber("100", gg.TYPE_DWORD)
   gg.editAll("999", gg.TYPE_DWORD)
   gg.clearResults()
 end
   </pre>
-</div>
-<div class="tutorialPage" id="page10">
-<h2>📦 Ready-to-Use Mods</h2>
-<p>This IDE comes with a growing library of <strong>standalone Game Guardian mods</strong> crafted for instant deployment.</p>
-<p>You can use these as-is or wire them into your own scripts:</p>
-<ul>
-<li><strong>💰 50M Money Mod</strong> – Get Rich Quick!</li>
-<li><strong>🪙 30K Coins Mod</strong> – Stack up your gold now!</li>
-<li><strong>🛞 Chrome Rims Mod</strong> – Roll out in style</li>
-<li><strong>💡 Lights/Breaks</strong> – Lights and Breaks use same method</li>
-<li><strong>⚡ Shift Speed Mod</strong> – No more granny shifting!</li>
-<li><strong>🛠️ Custom HP Mod</strong> - Power up your engine!</li>
-<li><strong>⚙️ Camber Mod</strong> - Low and slow :)</li>
-</ul>
-<p>🧠 Each one is plug-and-play, but also editable. Try loading one and viewing the code — it’s a perfect way to learn advanced structures.</p>
-<p><strong>Tip:</strong> Importing these will overwrite current code, so be sure to save first.</p>
-</div>
-
-<div class="tutorialPage" id="page11">
-  <h2>🔥 You’re Ready</h2>
-  <p>You now know how to:</p>
-  <ul>
-    <li>Write, scan, and edit values</li>
-    <li>Use autocomplete and snippets</li>
-    <li>Load templates and export scripts</li>
-    <li>Undo mistakes and run fast</li>
-  </ul>
-  <p>Click Start and write your next mod. The Lua Matrix is now yours. 🧬</p>
-  <div style="text-align:center; margin-top: 30px;">
-  </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div id="tutorialNav">
-<button onclick="prevTutorial()">◀ Prev</button>
-<button onclick="nextTutorial()">Next ▶</button>
-</div>
-
-
-
-
-
-
-
-
-</div>
-</div>
-
-<!-- Hamburger Side Menu -->
-<div id="hamburgerMenu">
-<div class="menu-header">
-<span>📜 Extra Tools</span>
-<button onclick="toggleHamburgerMenu()">✕</button>
-</div>
-<!-- Mod Inject Section -->
-<div class="menu-section">
-<div class="menu-section-title">💉 Mod Inject</div>
-<div class="mod-inject-item">
-<div class="mod-inject-header" onclick="toggleModDropdown('money-mod')">
-<div class="mod-inject-title">💰 50M Money Mod</div>
-<span class="mod-dropdown-arrow" id="money-mod-arrow">▶</span>
-</div>
-<div class="mod-inject-buttons" id="money-mod-buttons">
-<button class="mod-inject-btn inject-btn" onclick="injectMoneyMod()">🔧 Inject to IDE</button>
-<button class="mod-inject-btn copy-btn" onclick="copyMoneyMod()">📋 Copy to Clipboard</button>
-</div>
-</div>
-<div class="mod-inject-item">
-<div class="mod-inject-header" onclick="toggleModDropdown('coins-mod')">
-<div class="mod-inject-title">🪙 30K Coins Mod</div>
-<span class="mod-dropdown-arrow" id="coins-mod-arrow">▶</span>
-</div>
-<div class="mod-inject-buttons" id="coins-mod-buttons">
-<button class="mod-inject-btn inject-btn" onclick="injectCoinsMod()">🔧 Inject to IDE</button>
-<button class="mod-inject-btn copy-btn" onclick="copyCoinsMod()">📋 Copy to Clipboard</button>
-</div>
-</div>
-<div class="mod-inject-item">
-<div class="mod-inject-header" onclick="toggleModDropdown('chromerims-mod')">
-<div class="mod-inject-title">🛞 Chrome Rims Mod</div>
-<span class="mod-dropdown-arrow" id="chromerims-mod-arrow">▶</span>
-</div>
-<div class="mod-inject-buttons" id="chromerims-mod-buttons">
-<button class="mod-inject-btn inject-btn" onclick="injectChromeRimsMod()">🔧 Inject to IDE</button>
-<button class="mod-inject-btn copy-btn" onclick="copyChromeRimsMod()">📋 Copy to Clipboard</button>
-</div>
-</div>
-<div class="mod-inject-item">
-<div class="mod-inject-header" onclick="toggleModDropdown('lightsbreaks-mod')">
-<div class="mod-inject-title">💡 Lights/Breaks Mod</div>
-<span class="mod-dropdown-arrow" id="lightsbreaks-mod-arrow">▶</span>
-</div>
-<div class="mod-inject-buttons" id="lightsbreaks-mod-buttons">
-<button class="mod-inject-btn inject-btn" onclick="injectLightsBreaksMod()">🔧 Inject to IDE</button>
-<button class="mod-inject-btn copy-btn" onclick="copyLightsBreaksMod()">📋 Copy to Clipboard</button>
-</div>
-</div>
-<div class="mod-inject-item">
-<div class="mod-inject-header" onclick="toggleModDropdown('shiftspeed-mod')">
-<div class="mod-inject-title">⚡ Shift Speed Mod</div>
-<span class="mod-dropdown-arrow" id="shiftspeed-mod-arrow">▶</span>
-</div>
-<div class="mod-inject-buttons" id="shiftspeed-mod-buttons">
-<button class="mod-inject-btn inject-btn" onclick="injectShiftSpeedMod()">🔧 Inject to IDE</button>
-<button class="mod-inject-btn copy-btn" onclick="copyShiftSpeedMod()">📋 Copy to Clipboard</button>
-</div>
-</div>
-<div class="mod-inject-item">
-<div class="mod-inject-header" onclick="toggleModDropdown('customhp-mod')">
-<div class="mod-inject-title">🛠️ Custom HP Tool</div>
-<span class="mod-dropdown-arrow" id="customhp-mod-arrow">▶</span>
-</div>
-<div class="mod-inject-buttons" id="customhp-mod-buttons">
-<button class="mod-inject-btn inject-btn" onclick="injectCustomHPMod()">🔧 Inject to IDE</button>
-<button class="mod-inject-btn copy-btn" onclick="copyCustomHPMod()">📋 Copy to Clipboard</button>
-</div>
-</div>
-<div class="mod-inject-item">
-<div class="mod-inject-header" onclick="toggleModDropdown('camber-mod')">
-<div class="mod-inject-title">⚙️ Camber Mod</div>
-<span class="mod-dropdown-arrow" id="camber-mod-arrow">▶</span>
-</div>
-<div class="mod-inject-buttons" id="camber-mod-buttons">
-<button class="mod-inject-btn inject-btn" onclick="injectCamberMod()">🔧 Inject to IDE</button>
-<button class="mod-inject-btn copy-btn" onclick="copyCamberMod()">📋 Copy to Clipboard</button>
-</div>
-</div>
-</div>
-<!-- Template Section -->
-<div class="menu-section">
-<div class="menu-section-title">📜 Templates</div>
-<button onclick="insertScriptTemplate()">🧱 Insert Script Template</button>
-</div>
-<!-- Tools Section -->
-<div class="menu-section">
-<div class="menu-section-title">🔍 Tools</div>
-<button onclick="toggleSearch()">🔍 Search</button>
-<button onclick="runGGDebugger()">🔧 GG Debugger</button>
-<button onclick="window.location.href='encrypt.html'">🔒 Encrypter</button>
-<button onclick="window.location.href='obscure.html'">🔍 Obfuscator</button>
-</div>
-</div>
-<div id="background"></div>
-<canvas id="matrix"></canvas>
-<div id="toolbar">
-<div class="toolbar-left">
-<button onclick="copyCodeToClipboard()">📋 Copy</button>
-<button onclick="pasteCode()">📥 Paste</button>
-<button onclick="clearAll()">🗑️ Trash</button>
-<button onclick="insertGGTemplate()">📜 GG Snippet</button>
-<button onclick="toggleFullscreen()">📱 Fullscreen</button>
-<input id="fileInput" style="display:none" type="file"/>
-</div>
-<div class="toolbar-right">
-<span id="charCount">📝 0 chars</span>
-</div>
-</div>
-<div id="footerbar">
-<div class="footer-left">
-<button onclick="downloadScript()">💾 Save</button>
-<button onclick="uploadScript()">📤 Load</button>
-</div>
-<div class="footer-center" style="flex:1;display:flex;justify-content:center;align-items:center;gap:8px;">
-<button id="hamburgerToggle" onclick="toggleHamburgerMenu()" style="padding: 6px 14px; font-size: 11px; min-width: 80px; background: rgba(0,0,0,0.8); border: 1px solid #00ffcc; color: #00ffcc; border-radius: 5px; font-weight: bold; font-family: 'Orbitron', sans-serif;">☰ Menu</button>
-</div>
-<div class="footer-right">
-<button onclick="goBack()">🔙 Back</button>
-<button onclick="revertEditor()" title="Undo">↩️ Undo</button></div>
-</div>
-<!-- Search Panel -->
-<div id="searchPanel">
-<div class="search-header">
-<span>🔍 Search &amp; Replace</span>
-<button class="search-close" onclick="closeSearch()">✕</button>
-</div>
-<div class="search-body">
-<div class="search-input-group">
-<label for="searchInput">Find:</label>
-<input class="search-input" id="searchInput" placeholder="Enter search term..." type="text"/>
-</div>
-<div class="search-input-group">
-<label for="replaceInput">Replace with:</label>
-<input class="search-input" id="replaceInput" placeholder="Enter replacement..." type="text"/>
-</div>
-<div class="search-options">
-<label class="search-checkbox">
-<input id="matchCase" type="checkbox"/>
-        Match Case
-      </label>
-<label class="search-checkbox">
-<input id="wholeWord" type="checkbox"/>
-        Whole Word
-      </label>
-</div>
-<div class="search-controls">
-<button class="search-btn" onclick="findNext()">▼ Next</button>
-<button class="search-btn" onclick="findPrevious()">▲ Previous</button>
-<button class="search-btn" onclick="replaceOne()">Replace</button>
-<button class="search-btn" onclick="replaceAll()">Replace All</button>
-</div>
-<div class="search-info" id="searchInfo">
-      Enter a search term to begin
     </div>
-</div>
-</div>
-<div id="editor"></div>
-<script>
-    // Global variables
+    <div class="tutorialPage" id="page10">
+     <h2>
+      📦 Ready-to-Use Mods
+     </h2>
+     <p>
+      This IDE comes with a growing library of
+      <strong>
+       standalone Game Guardian mods
+      </strong>
+      crafted for instant deployment.
+     </p>
+     <p>
+      You can use these as-is or wire them into your own scripts:
+     </p>
+     <ul>
+      <li>
+       <strong>
+        💰 50M Money Mod
+       </strong>
+       – Get Rich Quick!
+      </li>
+      <li>
+       <strong>
+        🪙 30K Coins Mod
+       </strong>
+       – Stack up your gold now!
+      </li>
+      <li>
+       <strong>
+        🛞 Chrome Rims Mod
+       </strong>
+       – Roll out in style
+      </li>
+      <li>
+       <strong>
+        💡 Lights/Breaks
+       </strong>
+       – Lights and Breaks use same method
+      </li>
+      <li>
+       <strong>
+        ⚡ Shift Speed Mod
+       </strong>
+       – No more granny shifting!
+      </li>
+      <li>
+       <strong>
+        🛠️ Custom HP Mod
+       </strong>
+       - Power up your engine!
+      </li>
+      <li>
+       <strong>
+        ⚙️ Camber Mod
+       </strong>
+       - Low and slow :)
+      </li>
+     </ul>
+     <p>
+      🧠 Each one is plug-and-play, but also editable. Try loading one and viewing the code — it's a perfect way to learn advanced structures.
+     </p>
+     <p>
+      <strong>
+       Tip:
+      </strong>
+      Importing these will overwrite current code, so be sure to save first.
+     </p>
+    </div>
+    <div class="tutorialPage" id="page11">
+     <h2>
+      🔥 You're Ready
+     </h2>
+     <p>
+      You now know how to:
+     </p>
+     <ul>
+      <li>
+       Write, scan, and edit values
+      </li>
+      <li>
+       Use autocomplete and snippets
+      </li>
+      <li>
+       Load templates and export scripts
+      </li>
+      <li>
+       Undo mistakes and run fast
+      </li>
+     </ul>
+     <p>
+      Click Start and write your next mod. The Lua Matrix is now yours. 🧬
+     </p>
+     <div style="text-align:center; margin-top: 30px;">
+     </div>
+    </div>
+    <div class="tutorialPage" id="page12">
+     <h2>
+      ⚠️Important Security Info⚠️
+     </h2>
+     <ul>
+      <li>
+       Anti-debug &amp; anti-scraping measures active
+      </li>
+      <li>
+       DevTools &amp; console access detection enforced
+      </li>
+      <li>
+       Bot &amp; automation checks
+      </li>
+      <li>
+       Right-click, screenshot &amp; drag-block safeguards
+      </li>
+      <li>
+       Unauthorized copying or source theft prohibited
+      </li>
+      <li>
+       Violations trigger immediate access denial
+      </li>
+     </ul>
+     <p>
+      Any attempts to scrape, bot, or steal source will amount to account bans and trip my defense measures DO NOT ATTEMPT
+     </p>
+    </div>
+    <div id="tutorialNav">
+     <button onclick="prevTutorial()">
+      ◀ Prev
+     </button>
+     <button onclick="nextTutorial()">
+      Next ▶
+     </button>
+    </div>
+   </div>
+  </div>
+  <!-- Hamburger Side Menu -->
+  <div id="hamburgerMenu">
+   <div class="menu-header">
+    <span>
+     📜 Extra Tools
+    </span>
+    <button onclick="toggleHamburgerMenu()">
+     ✕
+    </button>
+   </div>
+   <!-- Mod Inject Section -->
+   <div class="menu-section">
+    <div class="menu-section-title">
+     💉 Mod Inject
+    </div>
+    <div class="mod-inject-item">
+     <div class="mod-inject-header" onclick="toggleModDropdown('money-mod')">
+      <div class="mod-inject-title">
+       💰 50M Money Mod
+      </div>
+      <span class="mod-dropdown-arrow" id="money-mod-arrow">
+       ▶
+      </span>
+     </div>
+     <div class="mod-inject-buttons" id="money-mod-buttons">
+      <button class="mod-inject-btn inject-btn" onclick="injectMoneyMod()">
+       🔧 Inject to IDE
+      </button>
+      <button class="mod-inject-btn copy-btn" onclick="copyMoneyMod()">
+       📋 Copy to Clipboard
+      </button>
+     </div>
+    </div>
+    <div class="mod-inject-item">
+     <div class="mod-inject-header" onclick="toggleModDropdown('coins-mod')">
+      <div class="mod-inject-title">
+       🪙 30K Coins Mod
+      </div>
+      <span class="mod-dropdown-arrow" id="coins-mod-arrow">
+       ▶
+      </span>
+     </div>
+     <div class="mod-inject-buttons" id="coins-mod-buttons">
+      <button class="mod-inject-btn inject-btn" onclick="injectCoinsMod()">
+       🔧 Inject to IDE
+      </button>
+      <button class="mod-inject-btn copy-btn" onclick="copyCoinsMod()">
+       📋 Copy to Clipboard
+      </button>
+     </div>
+    </div>
+    <div class="mod-inject-item">
+     <div class="mod-inject-header" onclick="toggleModDropdown('chromerims-mod')">
+      <div class="mod-inject-title">
+       🛞 Chrome Rims Mod
+      </div>
+      <span class="mod-dropdown-arrow" id="chromerims-mod-arrow">
+       ▶
+      </span>
+     </div>
+     <div class="mod-inject-buttons" id="chromerims-mod-buttons">
+      <button class="mod-inject-btn inject-btn" onclick="injectChromeRimsMod()">
+       🔧 Inject to IDE
+      </button>
+      <button class="mod-inject-btn copy-btn" onclick="copyChromeRimsMod()">
+       📋 Copy to Clipboard
+      </button>
+     </div>
+    </div>
+    <div class="mod-inject-item">
+     <div class="mod-inject-header" onclick="toggleModDropdown('lightsbreaks-mod')">
+      <div class="mod-inject-title">
+       💡 Lights/Breaks Mod
+      </div>
+      <span class="mod-dropdown-arrow" id="lightsbreaks-mod-arrow">
+       ▶
+      </span>
+     </div>
+     <div class="mod-inject-buttons" id="lightsbreaks-mod-buttons">
+      <button class="mod-inject-btn inject-btn" onclick="injectLightsBreaksMod()">
+       🔧 Inject to IDE
+      </button>
+      <button class="mod-inject-btn copy-btn" onclick="copyLightsBreaksMod()">
+       📋 Copy to Clipboard
+      </button>
+     </div>
+    </div>
+    <div class="mod-inject-item">
+     <div class="mod-inject-header" onclick="toggleModDropdown('shiftspeed-mod')">
+      <div class="mod-inject-title">
+       ⚡ Shift Speed Mod
+      </div>
+      <span class="mod-dropdown-arrow" id="shiftspeed-mod-arrow">
+       ▶
+      </span>
+     </div>
+     <div class="mod-inject-buttons" id="shiftspeed-mod-buttons">
+      <button class="mod-inject-btn inject-btn" onclick="injectShiftSpeedMod()">
+       🔧 Inject to IDE
+      </button>
+      <button class="mod-inject-btn copy-btn" onclick="copyShiftSpeedMod()">
+       📋 Copy to Clipboard
+      </button>
+     </div>
+    </div>
+    <div class="mod-inject-item">
+     <div class="mod-inject-header" onclick="toggleModDropdown('customhp-mod')">
+      <div class="mod-inject-title">
+       🛠️ Custom HP Tool
+      </div>
+      <span class="mod-dropdown-arrow" id="customhp-mod-arrow">
+       ▶
+      </span>
+     </div>
+     <div class="mod-inject-buttons" id="customhp-mod-buttons">
+      <button class="mod-inject-btn inject-btn" onclick="injectCustomHPMod()">
+       🔧 Inject to IDE
+      </button>
+      <button class="mod-inject-btn copy-btn" onclick="copyCustomHPMod()">
+       📋 Copy to Clipboard
+      </button>
+     </div>
+    </div>
+    <div class="mod-inject-item">
+     <div class="mod-inject-header" onclick="toggleModDropdown('camber-mod')">
+      <div class="mod-inject-title">
+       ⚙️ Camber Mod
+      </div>
+      <span class="mod-dropdown-arrow" id="camber-mod-arrow">
+       ▶
+      </span>
+     </div>
+     <div class="mod-inject-buttons" id="camber-mod-buttons">
+      <button class="mod-inject-btn inject-btn" onclick="injectCamberMod()">
+       🔧 Inject to IDE
+      </button>
+      <button class="mod-inject-btn copy-btn" onclick="copyCamberMod()">
+       📋 Copy to Clipboard
+      </button>
+     </div>
+    </div>
+   </div>
+   <!-- Template Section -->
+   <div class="menu-section">
+    <div class="menu-section-title">
+     📜 Templates
+    </div>
+    <button onclick="insertScriptTemplate()">
+     🧱 Insert Script Template
+    </button>
+    <button onclick="insertGGTemplate()">
+     📄 GG Snippet
+    </button>
+   </div>
+   <!-- Tools Section -->
+   <div class="menu-section">
+    <div class="menu-section-title">
+     🔍 Tools
+    </div>
+    <button onclick="toggleSearch()">
+     🔍 Search
+    </button>
+    <button onclick="runGGDebugger()">
+     🔧 GG Debugger
+    </button>
+    <button onclick="window.location.href='encrypt.html'">
+     🔒 Encrypter
+    </button>
+    <button onclick="window.location.href='obscure.html'">
+     🔍 Obfuscator
+    </button>
+   </div>
+  </div>
+  <div id="background">
+  </div>
+  <canvas id="matrix">
+  </canvas>
+  <div id="toolbar">
+   <div class="toolbar-left">
+    <button onclick="copyCodeToClipboard()">
+     📋 Copy
+    </button>
+    <button onclick="pasteCode()">
+     📥 Paste
+    </button>
+    <button onclick="clearAll()">
+     🗑️ Trash
+    </button>
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">
+     📱 Full
+    </button>
+   </div>
+   <div class="toolbar-right">
+    <span id="charCount">
+     📝 0 chars
+    </span>
+   </div>
+  </div>
+  <div id="footerbar">
+   <div class="footer-left">
+    <button onclick="downloadScript()">
+     💾 Save
+    </button>
+    <button onclick="uploadScript()">
+     📤 Load
+    </button>
+   </div>
+   <div class="footer-center" style="flex:1;display:flex;justify-content:center;align-items:center;gap:8px;">
+    <button id="hamburgerToggle" onclick="toggleHamburgerMenu()" style="padding: 6px 14px; font-size: 11px; min-width: 80px; background: rgba(0,0,0,0.8); border: 1px solid #0ff; color: #0ff; border-radius: 5px; font-weight: bold; font-family: 'Orbitron', sans-serif;">
+     ☰ Menu
+    </button>
+   </div>
+   <div class="footer-right">
+    <button onclick="goBack()">
+     🔙 Back
+    </button>
+    <button onclick="revertEditor()" title="Undo">
+     ↩️ Undo
+    </button>
+   </div>
+  </div>
+  <!-- Search Panel -->
+  <div id="searchPanel">
+   <div class="search-header">
+    <span>
+     🔍 Search &amp; Replace
+    </span>
+    <div>
+     <button class="search-minimize" onclick="toggleSearchMinimize()">
+      −
+     </button>
+     <button class="search-close" onclick="closeSearch()">
+      ✕
+     </button>
+    </div>
+   </div>
+   <div class="search-body">
+    <div class="search-input-group">
+     <label for="searchInput">
+      Find:
+     </label>
+     <input class="search-input" id="searchInput" placeholder="Enter search term..." type="text"/>
+    </div>
+    <div class="search-input-group">
+     <label for="replaceInput">
+      Replace with:
+     </label>
+     <input class="search-input" id="replaceInput" placeholder="Enter replacement..." type="text"/>
+    </div>
+    <div class="search-options">
+     <label class="search-checkbox">
+      <input id="matchCase" type="checkbox"/>
+      Match Case
+     </label>
+     <label class="search-checkbox">
+      <input id="wholeWord" type="checkbox"/>
+      Whole Word
+     </label>
+    </div>
+    <div class="search-controls">
+     <button class="search-btn" onclick="findNext()">
+      ▼ Next
+     </button>
+     <button class="search-btn" onclick="findPrevious()">
+      ▲ Previous
+     </button>
+     <button class="search-btn" onclick="replaceOne()">
+      Replace
+     </button>
+     <button class="search-btn" onclick="replaceAll()">
+      Replace All
+     </button>
+    </div>
+    <div class="search-info" id="searchInfo">
+     Enter a search term to begin
+    </div>
+   </div>
+  </div>
+  <div id="editor">
+  </div>
+  <input id="fileInput" style="display:none" type="file"/>
+  <script>
+   // Global variables
     let editor;
     let searchMatches = [];
     let currentMatchIndex = -1;
     let isDragging = false;
     let dragOffset = { x: 0, y: 0 };
+    
+    // Security and access control
+    const ACCESS_LOG = [];
+    const MAX_ACTIONS_PER_MINUTE = 30;
+    
+    function logAccess(action) {
+        const now = Date.now();
+        ACCESS_LOG.push({action, timestamp: now});
+        
+        // Clean old entries (older than 1 minute)
+        const oneMinuteAgo = now - 60000;
+        while (ACCESS_LOG.length > 0 && ACCESS_LOG[0].timestamp < oneMinuteAgo) {
+            ACCESS_LOG.shift();
+        }
+        
+        // Rate limiting
+        if (ACCESS_LOG.length > MAX_ACTIONS_PER_MINUTE) {
+            document.body.innerHTML = '<div style="color:#ff4444;text-align:center;padding:50px;font-family:Orbitron;">🚫 TOO MANY ACTIONS<br>Slow down!</div>';
+            setTimeout(() => window.location.reload(), 3000);
+            return false;
+        }
+        return true;
+    }
+    
+    // Secure mod injection tracking
+    const INJECTION_LOG = new Map();
+    
+    function trackInjection(modName) {
+        const count = INJECTION_LOG.get(modName) || 0;
+        if (count > 5) { // Max 5 injections per mod per session
+            showNotification("🚫 Max injections reached for this mod", "#ff4444");
+            return false;
+        }
+        INJECTION_LOG.set(modName, count + 1);
+        return true;
+    }
 
     // Hardcoded Money Mod Script
     const MONEY_MOD_SCRIPT = `-- CPMGARAGESTUDIOS 50M MOD IDE INJECT | DIFFICULTY: INTERMEDIATE
+    -- IF MOD FAILS RESET CPM+GG AND TRY AGAIN! THIS METHOD IS SOMETIMES IFFY BUT HAS SURVIVED MANY UPDATES!
 function fiftyMil() -- function name and call
     gg.setVisible(false)
        gg.alert('𝔾𝕆 𝕋𝕆 ℙ𝔸ℝ𝕂𝕀ℕ𝔾 𝕃𝔼𝕍𝔼𝕃 #𝟚 𝕋ℍ𝔼ℕ ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 𝕊𝕋𝔸ℝ𝕋') -- Alerts user to be in the correct area for searching values
@@ -1011,7 +1505,7 @@ fiftyMil()  -- Loop (usually would be mainMenu() or something this is meant to l
 function thirtyCoins() -- Function name
       
        gg.setVisible(false) -- Makes GG UI Close for visibility + while not GG functionality
-       gg.alert("𝔾𝕆 𝕋𝕆 𝔻ℝ𝕀𝕍𝔼ℝ 𝔼𝔻𝕀𝕋 𝄞𝔼ℕ𝕌 𝕋ℍ𝔼ℕ ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 𝕊𝕋𝔸ℝ𝕋") -- Wait for user to open GG before continuing
+       gg.alert("𝔾𝕆 𝕋𝕆 𝔻ℝ𝕀𝕍𝔼ℝ 𝔼𝔻𝕀𝕋 𝕄𝔼ℕ𝕌 𝕋ℍ𝔼ℕ ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 𝕊𝕋𝔸ℝ𝕋") -- Wait for user to open GG before continuing
     while not gg.isVisible(true) do
         gg.sleep(100)
     end
@@ -1027,7 +1521,7 @@ function thirtyCoins() -- Function name
         gg.sleep(2000) -- Added delay to ensure values apply properly
         gg.alert("ℕ𝕠𝕨 𝕘𝕠 𝕥𝕠 𝔸𝕟𝕚𝕞𝕒𝕥𝕚𝕠𝕟𝕤 𝕒𝕟𝕕 𝕓𝕦𝕪 𝟚 𝕨𝕚𝕥𝕙 -$ ") -- Alert to tell user what to do
         gg.sleep(6000) -- 6 second pause for user to correctly execute
-        gg.alert('𝔸𝕗𝕥𝕖𝕣 𝔹𝕦𝕪𝕚𝕟𝕘 𝔹𝕠𝕥𝕙 -$ 𝕎𝕒𝕚𝕥 𝕀𝕟 𝔻𝕣𝕚𝕧𝕖𝕣 𝄞𝕖𝕟𝕦 𝔽𝕠𝕣 𝔽𝕚𝕟𝕒𝕝 𝔼𝕕𝕚𝕥') -- Another user direction alert
+        gg.alert('𝔸𝕗𝕥𝕖𝕣 𝔹𝕦𝕪𝕚𝕟𝕘 𝔹𝕠𝕥𝕙 -$ 𝕎𝕒𝕚𝕥 𝕀𝕟 𝔻𝕣𝕚𝕧𝕖𝕣 𝕄𝕖𝕟𝕦 𝔽𝕠𝕣 𝔽𝕚𝕟𝕒𝕝 𝔼𝕕𝕚𝕥') -- Another user direction alert
        revert = gg.getResults(50)
         gg.sleep(1000)
         gg.editAll("-294937296",gg.TYPE_DWORD) -- Final Edit
@@ -1039,7 +1533,7 @@ function thirtyCoins() -- Function name
     else   -- if results are 0 or negative then error
         gg.alert("❌ No values found! Make sure you're in the correct menu before applying.")
     end -- Closes the if then condition
-        gg.toast('𝕋𝕒𝕡 𝔾𝔾 𝕋𝕠 ℝ𝖊𝕥𝕦𝕣𝕟 𝕋𝕠 ℂ𝕠𝕚𝕟 𝄞𝔢𝕟𝦳')
+        gg.toast('𝕋𝕒𝕡 𝔾𝔾 𝕋𝕠 ℝ𝕖𝕥𝕦𝕣𝕟 𝕋𝕠 ℂ𝕠𝕚𝕟 𝕄𝕖𝕟𝕦')
     waitForGG() -- Ensures script returns to menu instead of restarting
 end  -- Closes the coin function
 
@@ -1063,9 +1557,7 @@ end
 
 thirtyCoins()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`;
 
-    // Mod Dropdown Toggle Function
-
-// Hardcoded Camber Mod Script
+    // Hardcoded Camber Mod Script
 const CAMBER_MOD_SCRIPT = `-- CPMGARAGESTUDIOS CAMBER MOD INJECT | DIFFICULTY: BEGINNER
 
 function camber1()  -- function name
@@ -1113,58 +1605,14 @@ end
 
 camber1()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
 
-// Camber Mod Injection and Copy Functions
-function injectCamberMod() {
-  if (!editor) {
-    showNotification("❌ Editor not ready", "#ff4444");
-    return;
-  }
-  editor.setValue(CAMBER_MOD_SCRIPT);
-  editor.setPosition({ lineNumber: 1, column: 1 });
-  updateCharCount();
-  document.getElementById('hamburgerMenu').classList.remove('active');
-  showNotification("⚙️ Camber Mod injected to IDE successfully!", "#00ff00");
-}
-
-function copyCamberMod() {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(CAMBER_MOD_SCRIPT)
-      .then(() => showNotification("⚙️ Camber Mod copied to clipboard!", "#ffa500"))
-      .catch(() => fallbackCopyCamberMod());
-  } else {
-    fallbackCopyCamberMod();
-  }
-  document.getElementById('hamburgerMenu').classList.remove('active');
-}
-
-function fallbackCopyCamberMod() {
-  const textarea = document.createElement('textarea');
-  textarea.value = CAMBER_MOD_SCRIPT;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  try {
-    const success = document.execCommand('copy');
-    showNotification(success
-      ? "⚙️ Camber Mod copied to clipboard!"
-      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
-    );
-  } catch {
-    showNotification("❌ Copy error", "#ff4444");
-  } finally {
-    document.body.removeChild(textarea);
-  }
-}
-
 // Hardcoded Custom HP Tool Script
-const CUSTOM_HP_SCRIPT = `-- CPMGARAGESTUDIOS CAMBER MOD INJECT | DIFFICULTY: INTERMEDIATE
+const CUSTOM_HP_SCRIPT = `-- CPMGARAGESTUDIOS CUSTOM HP MOD INJECT | DIFFICULTY: INTERMEDIATE
 
 function customHPInput()  -- function name
     gg.setVisible(false)  -- hides gg for visibility and wait for gg functionality
     gg.alert("𝔹𝕦𝕪 𝔸𝕟 𝔼𝕟𝕘𝕚𝕟𝕖 𝔸𝕟𝕕 ℝ𝕖𝕞𝕖𝕞𝕓𝕖𝕣 𝕋𝕠𝕣𝕢𝕦𝕖 𝔸𝕟𝕕 ℍℙ (𝕋𝕠 𝕋𝕦𝕟𝕖 𝕎𝕚𝕥𝕙 ℕ𝕠 𝔼𝕟𝕘𝕚𝕟𝕖 ℝ𝕖𝕞𝕖𝕞𝕓𝕖𝕣 ℝ𝕖𝕤𝕖𝕥 𝔼𝕟𝕘𝕚𝕟𝕖 𝔸𝕟𝕕 𝕌𝕤𝕖 𝕊𝕥𝕠𝕔𝕜 ℍℙ. 𝔸𝕕𝕕 𝕋𝕦𝕣𝕓𝕠 𝔽𝕠𝕣 𝕋𝕦𝕣𝕓𝕠 𝕊𝕠𝕦𝕟𝕕/ℙ𝕠𝕡𝕤")  -- user alert 
     gg.sleep(1500)  -- small sleep so toast shows up properly
-    gg.toast('ℂ𝕃𝕀ℂ𝕂 𝔾𝔾 𝕋𝕆 𝕊𝕋𝔸ℝ𝕋')  -- small temporary message
+    gg.toast('ℂ𝕃𝕀ℂ𝔪 𝔞𝞤 𝕋𝔒 𝕊𝔱𝔞𝚤𝚴')  -- small temporary message
 while not gg.isVisible(true) do -- waits for user to click gg
         gg.sleep(100)
     end
@@ -1199,9 +1647,9 @@ while not gg.isVisible(true) do -- waits for user to click gg
         gg.clearResults()  -- clears results for retry
     end  -- closes if then
 
-    gg.alert("ℂ𝕝𝕚𝕔𝕜 𝕠𝕟 𝔹𝕠𝕦𝕘𝕙𝕥 𝔼𝕟𝕘𝕚𝕟𝕖 𝕆𝕣 𝔹𝕦𝕪 𝕋𝕚𝕣𝕖𝕤 𝕆𝕣 𝔹𝕣𝕒𝕜𝕖𝕤 𝕀𝕗 𝕋𝕦𝕟𝕖𝕕 𝕎𝕚𝕥𝕙 𝕊𝕥𝕠𝕔𝕜 𝔼𝕟𝕘𝕚𝕟𝕖")  -- user alert
+     gg.alert("ℂ𝕝𝕚𝕔𝕜 𝕠𝕟 𝔹𝕠𝕦𝕘𝕙𝕥 𝔼𝕟𝕘𝕚𝕟𝕖 𝕆𝕣 𝔹𝕦𝕪 𝕋𝕚𝕣𝕖𝕤 𝕆𝕣 𝔹𝕣𝕒𝕜𝕖𝕤 𝕀𝕗 𝕋𝕦𝕟𝕖𝕕 𝕎𝕚𝕥𝕙 𝕊𝕥𝕠𝕔𝕜 𝔼𝕟𝕘𝕚𝕟𝕖")  -- user alert
     gg.sleep(6000) -- small 6sec pause to allow user to execute
-    gg.alert("ℍℙ 𝔸𝕕𝕛𝕦𝕤𝕥𝕞𝕖𝕟𝕥 ℂ𝕠𝕞𝕡𝕝𝕖𝕥𝕖 !") -- finishing alert
+      gg.alert("ℍℙ 𝔸𝕕𝕛𝕦𝕤𝕥𝕞𝕖𝕟𝕥 ℂ𝕠𝕞𝕡𝕝𝕖𝕥𝕖 !") -- finishing alert
 
     waitForGG()  -- waits for user to loop back to menu (if wired in this case it's not)
 end -- closes hp function
@@ -1225,50 +1673,6 @@ function waitForGG(returnTo)   -- This Let's the function pause and wait for use
 end
 
 customHPInput()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
-
-// Custom HP Tool Injection and Copy Functions
-function injectCustomHPMod() {
-  if (!editor) {
-    showNotification("❌ Editor not ready", "#ff4444");
-    return;
-  }
-  editor.setValue(CUSTOM_HP_SCRIPT);
-  editor.setPosition({ lineNumber: 1, column: 1 });
-  updateCharCount();
-  document.getElementById('hamburgerMenu').classList.remove('active');
-  showNotification("🛠️ Custom HP Tool injected to IDE successfully!", "#00ff00");
-}
-
-function copyCustomHPMod() {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(CUSTOM_HP_SCRIPT)
-      .then(() => showNotification("🛠️ Custom HP Tool copied to clipboard!", "#ffa500"))
-      .catch(() => fallbackCopyCustomHPMod());
-  } else {
-    fallbackCopyCustomHPMod();
-  }
-  document.getElementById('hamburgerMenu').classList.remove('active');
-}
-
-function fallbackCopyCustomHPMod() {
-  const textarea = document.createElement('textarea');
-  textarea.value = CUSTOM_HP_SCRIPT;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  try {
-    const success = document.execCommand('copy');
-    showNotification(success
-      ? "🛠️ Custom HP Tool copied to clipboard!"
-      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
-    );
-  } catch {
-    showNotification("❌ Copy error", "#ff4444");
-  } finally {
-    document.body.removeChild(textarea);
-  }
-}
 
 // Hardcoded Shift Speed Mod Script
 const SHIFT_SPEED_SCRIPT = `-- CPMGARAGESTUDIOS SHIFTSPEED MOD INJECT | DIFFICULTY BEGINNER
@@ -1318,50 +1722,6 @@ end
 
 shiftSpeed()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
 
-// Shift Speed Mod Injection and Copy Functions
-function injectShiftSpeedMod() {
-  if (!editor) {
-    showNotification("❌ Editor not ready", "#ff4444");
-    return;
-  }
-  editor.setValue(SHIFT_SPEED_SCRIPT);
-  editor.setPosition({ lineNumber: 1, column: 1 });
-  updateCharCount();
-  document.getElementById('hamburgerMenu').classList.remove('active');
-  showNotification("⚡ Shift Speed Mod injected to IDE successfully!", "#00ff00");
-}
-
-function copyShiftSpeedMod() {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(SHIFT_SPEED_SCRIPT)
-      .then(() => showNotification("⚡ Shift Speed Mod copied to clipboard!", "#ffa500"))
-      .catch(() => fallbackCopyShiftSpeedMod());
-  } else {
-    fallbackCopyShiftSpeedMod();
-  }
-  document.getElementById('hamburgerMenu').classList.remove('active');
-}
-
-function fallbackCopyShiftSpeedMod() {
-  const textarea = document.createElement('textarea');
-  textarea.value = SHIFT_SPEED_SCRIPT;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  try {
-    const success = document.execCommand('copy');
-    showNotification(success
-      ? "⚡ Shift Speed Mod copied to clipboard!"
-      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
-    );
-  } catch {
-    showNotification("❌ Copy error", "#ff4444");
-  } finally {
-    document.body.removeChild(textarea);
-  }
-}
-
 // Hardcoded Chrome Rims Mod Script
 const CHROME_RIMS_SCRIPT = `-- CPMGARAGESTUDIOS CHROME RIM MOD INJECT | DIFFICULTY: BEGINNER
 
@@ -1410,50 +1770,6 @@ end
 
 chromeRims()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
 
-// Chrome Rims Mod Injection and Copy Functions
-function injectChromeRimsMod() {
-  if (!editor) {
-    showNotification("❌ Editor not ready", "#ff4444");
-    return;
-  }
-  editor.setValue(CHROME_RIMS_SCRIPT);
-  editor.setPosition({ lineNumber: 1, column: 1 });
-  updateCharCount();
-  document.getElementById('hamburgerMenu').classList.remove('active');
-  showNotification("🛞 Chrome Rims Mod injected to IDE successfully!", "#00ff00");
-}
-
-function copyChromeRimsMod() {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(CHROME_RIMS_SCRIPT)
-      .then(() => showNotification("🛞 Chrome Rims Mod copied to clipboard!", "#ffa500"))
-      .catch(() => fallbackCopyChromeRimsMod());
-  } else {
-    fallbackCopyChromeRimsMod();
-  }
-  document.getElementById('hamburgerMenu').classList.remove('active');
-}
-
-function fallbackCopyChromeRimsMod() {
-  const textarea = document.createElement('textarea');
-  textarea.value = CHROME_RIMS_SCRIPT;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  try {
-    const success = document.execCommand('copy');
-    showNotification(success
-      ? "🛞 Chrome Rims Mod copied to clipboard!"
-      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
-    );
-  } catch {
-    showNotification("❌ Copy error", "#ff4444");
-  } finally {
-    document.body.removeChild(textarea);
-  }
-}
-
 // Hardcoded Lights/Breaks Mod Script
 const LIGHTS_BREAKS_SCRIPT = `-- CPMGARAGESTUDIOS LIGHTS/BREAKS MOD INJECT | DIFFICULTY: BEGINNER
 
@@ -1474,13 +1790,12 @@ function glow()  -- function name
     end -- closes for i do loop
 
     gg.editAll('100', gg.TYPE_FLOAT)  -- edit values
-    gg.alert('𝔾𝕝𝕠𝕨 𝔸𝕡𝕡𝕝𝕚𝕖𝕕✨️')  -- final alert
+     gg.alert('𝔾𝕝𝕠𝕨 𝔸𝕡𝕡𝕝𝕚𝕖𝕕✨️')  -- final alert
 
     gg.clearResults()  -- clears results for next mod and game functionality
-    gg.toast('ℂ𝕝𝕚𝕔𝕜 𝔾𝔾 𝕋𝕠 ℝ𝕖𝕥𝕦𝕣𝕟 𝕋𝕠 𝕄𝕖𝕟𝕦') -- small message
+    gg.toast('ℂ𝕝𝕚𝕔𝕜 𝔾𝔾 𝕋𝕠 ℝ𝕖𝕥𝕦𝕣𝕟 𝕋𝕠 𝔾𝕝𝕠𝕨 𝕄𝕖𝕟𝕦') -- small message
     waitForGG()  -- waits for user to click gg to return to menu (not implicated in this example)
 end -- closes function
-
 
 function waitForGG(returnTo)   -- This Let's the function pause and wait for user input can be used at the end so gg doesn't block view or as a upgraded sleep function ) (This Money menu almost requires this so leave in script!)
     while true do
@@ -1502,49 +1817,7 @@ end
 
 glow()  -- Loop (usually would be mainMenu() or something this is meant to loop the menu instead of it run once like a traditional script)`
 
-// Lights/Breaks Mod Injection and Copy Functions
-function injectLightsBreaksMod() {
-  if (!editor) {
-    showNotification("❌ Editor not ready", "#ff4444");
-    return;
-  }
-  editor.setValue(LIGHTS_BREAKS_SCRIPT);
-  editor.setPosition({ lineNumber: 1, column: 1 });
-  updateCharCount();
-  document.getElementById('hamburgerMenu').classList.remove('active');
-  showNotification("💡 Lights/Breaks Mod injected to IDE successfully!", "#00ff00");
-}
-
-function copyLightsBreaksMod() {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(LIGHTS_BREAKS_SCRIPT)
-      .then(() => showNotification("💡 Lights/Breaks Mod copied to clipboard!", "#ffa500"))
-      .catch(() => fallbackCopyLightsBreaksMod());
-  } else {
-    fallbackCopyLightsBreaksMod();
-  }
-  document.getElementById('hamburgerMenu').classList.remove('active');
-}
-
-function fallbackCopyLightsBreaksMod() {
-  const textarea = document.createElement('textarea');
-  textarea.value = LIGHTS_BREAKS_SCRIPT;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  try {
-    const success = document.execCommand('copy');
-    showNotification(success
-      ? "💡 Lights/Breaks Mod copied to clipboard!"
-      : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
-    );
-  } catch {
-    showNotification("❌ Copy error", "#ff4444");
-  } finally {
-    document.body.removeChild(textarea);
-  }
-}
+    // Mod Dropdown Toggle Functions
     function toggleModDropdown(modId) {
         const buttons = document.getElementById(modId + '-buttons');
         const arrow = document.getElementById(modId + '-arrow');
@@ -1559,6 +1832,7 @@ function fallbackCopyLightsBreaksMod() {
             arrow.classList.add('expanded');
         }
     }
+
     // Money Mod Functions
     function injectMoneyMod() {
         if (!editor) {
@@ -1566,19 +1840,14 @@ function fallbackCopyLightsBreaksMod() {
             return;
         }
         
-        // Clear the editor and inject the money mod
         editor.setValue(MONEY_MOD_SCRIPT);
         editor.setPosition({ lineNumber: 1, column: 1 });
         updateCharCount();
-        
-        // Close hamburger menu
         document.getElementById('hamburgerMenu').classList.remove('active');
-        
         showNotification("💰 Money Mod injected to IDE successfully!", "#00ff00");
     }
 
     function copyMoneyMod() {
-        // Copy to clipboard
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(MONEY_MOD_SCRIPT).then(() => {
                 showNotification("💰 Money Mod copied to clipboard!", "#ffa500");
@@ -1588,8 +1857,6 @@ function fallbackCopyLightsBreaksMod() {
         } else {
             fallbackCopyMod();
         }
-        
-        // Close hamburger menu
         document.getElementById('hamburgerMenu').classList.remove('active');
     }
 
@@ -1600,19 +1867,14 @@ function fallbackCopyLightsBreaksMod() {
             return;
         }
         
-        // Clear the editor and inject the coins mod
         editor.setValue(COINS_MOD_SCRIPT);
         editor.setPosition({ lineNumber: 1, column: 1 });
         updateCharCount();
-        
-        // Close hamburger menu
         document.getElementById('hamburgerMenu').classList.remove('active');
-        
         showNotification("🪙 30K Coins Mod injected to IDE successfully!", "#00ff00");
     }
 
     function copyCoinsMod() {
-        // Copy to clipboard
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(COINS_MOD_SCRIPT).then(() => {
                 showNotification("🪙 30K Coins Mod copied to clipboard!", "#ffa500");
@@ -1622,8 +1884,6 @@ function fallbackCopyLightsBreaksMod() {
         } else {
             fallbackCopyCoinsMod();
         }
-        
-        // Close hamburger menu
         document.getElementById('hamburgerMenu').classList.remove('active');
     }
 
@@ -1649,6 +1909,227 @@ function fallbackCopyLightsBreaksMod() {
             showNotification("❌ Copy error", "#ff4444");
         }
     }
+
+    // Chrome Rims Mod Functions
+    function injectChromeRimsMod() {
+        if (!editor) {
+            showNotification("❌ Editor not ready", "#ff4444");
+            return;
+        }
+        editor.setValue(CHROME_RIMS_SCRIPT);
+        editor.setPosition({ lineNumber: 1, column: 1 });
+        updateCharCount();
+        document.getElementById('hamburgerMenu').classList.remove('active');
+        showNotification("🛞 Chrome Rims Mod injected to IDE successfully!", "#00ff00");
+    }
+
+    function copyChromeRimsMod() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(CHROME_RIMS_SCRIPT)
+                .then(() => showNotification("🛞 Chrome Rims Mod copied to clipboard!", "#ffa500"))
+                .catch(() => fallbackCopyChromeRimsMod());
+        } else {
+            fallbackCopyChromeRimsMod();
+        }
+        document.getElementById('hamburgerMenu').classList.remove('active');
+    }
+
+    function fallbackCopyChromeRimsMod() {
+        const textarea = document.createElement('textarea');
+        textarea.value = CHROME_RIMS_SCRIPT;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            const success = document.execCommand('copy');
+            showNotification(success
+                ? "🛞 Chrome Rims Mod copied to clipboard!"
+                : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+            );
+        } catch {
+            showNotification("❌ Copy error", "#ff4444");
+        } finally {
+            document.body.removeChild(textarea);
+        }
+    }
+
+    // Lights/Breaks Mod Functions
+    function injectLightsBreaksMod() {
+        if (!editor) {
+            showNotification("❌ Editor not ready", "#ff4444");
+            return;
+        }
+        editor.setValue(LIGHTS_BREAKS_SCRIPT);
+        editor.setPosition({ lineNumber: 1, column: 1 });
+        updateCharCount();
+        document.getElementById('hamburgerMenu').classList.remove('active');
+        showNotification("💡 Lights/Breaks Mod injected to IDE successfully!", "#00ff00");
+    }
+
+    function copyLightsBreaksMod() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(LIGHTS_BREAKS_SCRIPT)
+                .then(() => showNotification("💡 Lights/Breaks Mod copied to clipboard!", "#ffa500"))
+                .catch(() => fallbackCopyLightsBreaksMod());
+        } else {
+            fallbackCopyLightsBreaksMod();
+        }
+        document.getElementById('hamburgerMenu').classList.remove('active');
+    }
+
+    function fallbackCopyLightsBreaksMod() {
+        const textarea = document.createElement('textarea');
+        textarea.value = LIGHTS_BREAKS_SCRIPT;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            const success = document.execCommand('copy');
+            showNotification(success
+                ? "💡 Lights/Breaks Mod copied to clipboard!"
+                : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+            );
+        } catch {
+            showNotification("❌ Copy error", "#ff4444");
+        } finally {
+            document.body.removeChild(textarea);
+        }
+    }
+
+    // Shift Speed Mod Functions
+    function injectShiftSpeedMod() {
+        if (!editor) {
+            showNotification("❌ Editor not ready", "#ff4444");
+            return;
+        }
+        editor.setValue(SHIFT_SPEED_SCRIPT);
+        editor.setPosition({ lineNumber: 1, column: 1 });
+        updateCharCount();
+        document.getElementById('hamburgerMenu').classList.remove('active');
+        showNotification("⚡ Shift Speed Mod injected to IDE successfully!", "#00ff00");
+    }
+
+    function copyShiftSpeedMod() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(SHIFT_SPEED_SCRIPT)
+                .then(() => showNotification("⚡ Shift Speed Mod copied to clipboard!", "#ffa500"))
+                .catch(() => fallbackCopyShiftSpeedMod());
+        } else {
+            fallbackCopyShiftSpeedMod();
+        }
+        document.getElementById('hamburgerMenu').classList.remove('active');
+    }
+
+    function fallbackCopyShiftSpeedMod() {
+        const textarea = document.createElement('textarea');
+        textarea.value = SHIFT_SPEED_SCRIPT;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            const success = document.execCommand('copy');
+            showNotification(success
+                ? "⚡ Shift Speed Mod copied to clipboard!"
+                : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+            );
+        } catch {
+            showNotification("❌ Copy error", "#ff4444");
+        } finally {
+            document.body.removeChild(textarea);
+        }
+    }
+
+    // Custom HP Tool Functions
+    function injectCustomHPMod() {
+        if (!editor) {
+            showNotification("❌ Editor not ready", "#ff4444");
+            return;
+        }
+        editor.setValue(CUSTOM_HP_SCRIPT);
+        editor.setPosition({ lineNumber: 1, column: 1 });
+        updateCharCount();
+        document.getElementById('hamburgerMenu').classList.remove('active');
+        showNotification("🛠️ Custom HP Tool injected to IDE successfully!", "#00ff00");
+    }
+
+    function copyCustomHPMod() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(CUSTOM_HP_SCRIPT)
+                .then(() => showNotification("🛠️ Custom HP Tool copied to clipboard!", "#ffa500"))
+                .catch(() => fallbackCopyCustomHPMod());
+        } else {
+            fallbackCopyCustomHPMod();
+        }
+        document.getElementById('hamburgerMenu').classList.remove('active');
+    }
+
+    function fallbackCopyCustomHPMod() {
+        const textarea = document.createElement('textarea');
+        textarea.value = CUSTOM_HP_SCRIPT;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            const success = document.execCommand('copy');
+            showNotification(success
+                ? "🛠️ Custom HP Tool copied to clipboard!"
+                : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+            );
+        } catch {
+            showNotification("❌ Copy error", "#ff4444");
+        } finally {
+            document.body.removeChild(textarea);
+        }
+    }
+
+    // Camber Mod Functions
+    function injectCamberMod() {
+        if (!editor) {
+            showNotification("❌ Editor not ready", "#ff4444");
+            return;
+        }
+        editor.setValue(CAMBER_MOD_SCRIPT);
+        editor.setPosition({ lineNumber: 1, column: 1 });
+        updateCharCount();
+        document.getElementById('hamburgerMenu').classList.remove('active');
+        showNotification("⚙️ Camber Mod injected to IDE successfully!", "#00ff00");
+    }
+
+    function copyCamberMod() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(CAMBER_MOD_SCRIPT)
+                .then(() => showNotification("⚙️ Camber Mod copied to clipboard!", "#ffa500"))
+                .catch(() => fallbackCopyCamberMod());
+        } else {
+            fallbackCopyCamberMod();
+        }
+        document.getElementById('hamburgerMenu').classList.remove('active');
+    }
+
+    function fallbackCopyCamberMod() {
+        const textarea = document.createElement('textarea');
+        textarea.value = CAMBER_MOD_SCRIPT;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            const success = document.execCommand('copy');
+            showNotification(success
+                ? "⚙️ Camber Mod copied to clipboard!"
+                : "❌ Copy failed", success ? "#ffa500" : "#ff4444"
+            );
+        } catch {
+            showNotification("❌ Copy error", "#ff4444");
+        } finally {
+            document.body.removeChild(textarea);
+        }
+    }
+
     function fallbackCopyMod() {
         const textarea = document.createElement('textarea');
         textarea.value = MONEY_MOD_SCRIPT;
@@ -1692,7 +2173,7 @@ function fallbackCopyLightsBreaksMod() {
     function drawMatrix() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#00ffcc";
+      ctx.fillStyle = "#0ff";
       ctx.font = fontSize + "px monospace";
       
       columns = Math.floor(canvas.width / fontSize);
@@ -1713,6 +2194,8 @@ function fallbackCopyLightsBreaksMod() {
 
     // Copy, paste, and clear functions
     function copyCodeToClipboard() {
+      if (!logAccess('copy_code')) return;
+      
       if (!editor) {
         showNotification("❌ Editor not ready", "#ff4444");
         return;
@@ -1725,7 +2208,6 @@ function fallbackCopyLightsBreaksMod() {
         return;
       }
       
-      // Create textarea and copy
       const textarea = document.createElement('textarea');
       textarea.value = text;
       textarea.style.position = 'fixed';
@@ -1738,7 +2220,7 @@ function fallbackCopyLightsBreaksMod() {
         document.body.removeChild(textarea);
         
         if (success) {
-          showNotification("📋 Code copied to clipboard successfully!", "#00ffcc");
+          showNotification("📋 Code copied to clipboard successfully!", "#0ff");
         } else {
           showNotification("❌ Copy command failed", "#ff4444");
         }
@@ -1749,12 +2231,14 @@ function fallbackCopyLightsBreaksMod() {
     }
 
     function pasteCode() {
+      if (!logAccess('paste_code')) return;
+      
       try {
         navigator.clipboard.readText().then(text => {
           if (text) {
             const currentValue = editor.getValue();
             editor.setValue(currentValue + text);
-            showNotification("📥 Content pasted!", "#00ffcc");
+            showNotification("📥 Content pasted!", "#0ff");
             updateCharCount();
           } else {
             showNotification("📥 Clipboard is empty", "#ffaa00");
@@ -1768,13 +2252,15 @@ function fallbackCopyLightsBreaksMod() {
     }
 
     function clearAll() {
+      if (!logAccess('clear_editor')) return;
+      
       const confirmation = confirm("🗑️ Are you sure you want to clear all code?\n\nThis action cannot be undone!");
       
       if (confirmation) {
         try {
           editor.setValue('-- New Lua script\n');
           editor.setPosition({ lineNumber: 2, column: 1 });
-          showNotification("🗑️ Editor cleared successfully!", "#00ffcc");
+          showNotification("🗑️ Editor cleared successfully!", "#0ff");
           updateCharCount();
         } catch (error) {
           showNotification("❌ Clear failed", "#ff4444");
@@ -1782,7 +2268,7 @@ function fallbackCopyLightsBreaksMod() {
       }
     }
 
-    // Initialize Monaco Editor
+    // Initialize Monaco Editor with mobile-optimized settings
     require.config({ paths: { vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs" } });
     require(["vs/editor/editor.main"], function () {
       editor = monaco.editor.create(document.getElementById("editor"), {
@@ -1795,6 +2281,44 @@ function fallbackCopyLightsBreaksMod() {
         minimap: { enabled: window.innerWidth > 768 },
         wordWrap: 'on',
         scrollBeyondLastLine: false,
+        // Enhanced mobile support
+        quickSuggestions: {
+          other: true,
+          comments: false,
+          strings: false
+        },
+        parameterHints: {
+          enabled: true,
+          cycle: true
+        },
+        suggestOnTriggerCharacters: true,
+        acceptSuggestionOnCommitCharacter: true,
+        acceptSuggestionOnEnter: "on",
+        tabCompletion: "on",
+        wordBasedSuggestions: true,
+        // Mobile-specific settings for Android optimization
+        scrollbar: {
+          vertical: 'auto',
+          horizontal: 'auto',
+          useShadows: false,
+          verticalHasArrows: false,
+          horizontalHasArrows: false,
+          verticalScrollbarSize: window.innerWidth < 768 ? 14 : 17,
+          horizontalScrollbarSize: window.innerWidth < 768 ? 14 : 17
+        },
+        hover: {
+          enabled: true,
+          delay: 300
+        },
+        // Enhanced mobile support for copy/paste
+        readOnly: false,
+        selectOnLineNumbers: true,
+        selectionHighlight: true,
+        contextmenu: window.innerWidth > 768, // Disable context menu on mobile for security but allow text selection
+        copyWithSyntaxHighlighting: false, // Better mobile performance
+        // Mobile touch improvements
+        multiCursorModifier: 'alt',
+        accessibilitySupport: 'auto'
       });
 
       updateCharCount();
@@ -1814,6 +2338,13 @@ function fallbackCopyLightsBreaksMod() {
 
       editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.F3, function() {
         findPrevious();
+      });
+
+      // Force autocomplete trigger for GG API
+      editor.onDidType((text) => {
+        if (text === '.' && editor.getModel().getWordUntilPosition(editor.getPosition()).word === 'gg') {
+          editor.trigger('keyboard', 'editor.action.triggerSuggest', {});
+        }
       });
 
       // Cursor animations
@@ -1980,15 +2511,28 @@ function fallbackCopyLightsBreaksMod() {
 
     // File operations
     function downloadScript() {
+      if (!logAccess('download_script')) return;
+      
       const text = editor.getValue();
-      const blob = new Blob([text], { type: "text/plain" });
+      const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
+      const watermarkedContent = `-- Generated by CPMGARAGESTUDIOS Lua Matrix IDE
+-- Created: ${timestamp}
+-- © CPMGARAGESTUDIOS - All rights reserved
+-- Unauthorized copying or distribution prohibited
+
+${text}
+
+-- End of script generated by CPMGARAGESTUDIOS IDE`;
+      
+      const blob = new Blob([watermarkedContent], { type: "text/plain" });
       const link = document.createElement("a");
-      link.download = "gg_script.lua";
+      link.download = `gg_script_${timestamp}.lua`;
       link.href = URL.createObjectURL(blob);
       link.click();
     }
 
     function uploadScript() {
+      if (!logAccess('upload_script')) return;
       document.getElementById("fileInput").click();
     }
 
@@ -2111,6 +2655,7 @@ end`;
         closeSearch();
       } else {
         panel.classList.add('active');
+        panel.classList.remove('minimized');
         document.getElementById('searchInput').focus();
         
         const selection = editor.getSelection();
@@ -2122,9 +2667,30 @@ end`;
       }
     }
 
+    function toggleSearchMinimize() {
+      const panel = document.getElementById('searchPanel');
+      const searchBody = panel.querySelector('.search-body');
+      const minimizeBtn = panel.querySelector('.search-minimize');
+      
+      if (panel.classList.contains('minimized')) {
+        // Expand
+        panel.classList.remove('minimized');
+        minimizeBtn.textContent = '−';
+        minimizeBtn.title = 'Minimize search panel';
+        searchBody.style.display = 'block';
+      } else {
+        // Minimize
+        panel.classList.add('minimized');
+        minimizeBtn.textContent = '+';
+        minimizeBtn.title = 'Expand search panel';
+        searchBody.style.display = 'none';
+      }
+    }
+
     function closeSearch() {
       const panel = document.getElementById('searchPanel');
       panel.classList.remove('active');
+      panel.classList.remove('minimized');
       clearSearchHighlights();
       editor.focus();
     }
@@ -2151,9 +2717,9 @@ end`;
       
       let pattern = searchTerm;
       if (wholeWord) {
-        pattern = '\\b' + pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\          showNotification("❌ Clear failed", "#ff4444') + '\\b';
+        pattern = '\\b' + pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\        trail.className') + '\\b';
       } else {
-        pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\          showNotification("❌ Clear failed", "#ff4444');
+        pattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\        trail.className');
       }
       
       try {
@@ -2524,17 +3090,17 @@ end`;
       const dialog = document.createElement('div');
       dialog.style.cssText = `
         background: rgba(0, 0, 0, 0.95);
-        border: 2px solid #00ffcc;
+        border: 2px solid #0ff;
         border-radius: 10px;
         padding: 20px;
         max-width: 80%;
         max-height: 80%;
         overflow-y: auto;
-        color: #00ffcc;
+        color: #0ff;
         font-family: 'Orbitron', monospace;
         font-size: 12px;
         white-space: pre-wrap;
-        box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
         position: relative;
       `;
 
@@ -2587,6 +3153,12 @@ end`;
       menu.classList.toggle('active');
     }
 
+    function revertEditor() {
+      if (typeof editor !== 'undefined') {
+        editor.trigger('keyboard', 'undo', null);
+      }
+    }
+
     // Handle orientation changes on mobile
     window.addEventListener('orientationchange', function() {
       setTimeout(() => {
@@ -2600,92 +3172,17 @@ end`;
     // Initialize hamburger menu buttons - close menu when clicking any button
     window.addEventListener('DOMContentLoaded', function() {
       const menu = document.getElementById('hamburgerMenu');
-      menu.querySelectorAll('button:not(.menu-header button)').forEach(btn => {
-        btn.addEventListener('click', () => {
-          menu.classList.remove('active');
+      if (menu) {
+        menu.querySelectorAll('button:not(.menu-header button)').forEach(btn => {
+          btn.addEventListener('click', () => {
+            menu.classList.remove('active');
+          });
         });
-      });
+      }
     });
-</script>
-<script>
-function revertEditor() {
-  if (typeof editor !== 'undefined') {
-    editor.trigger('keyboard', 'undo', null);
-  }
-}
-</script><script>
-require(['vs/editor/editor.main'], function () {
-  monaco.languages.registerCompletionItemProvider('lua', {
-    provideCompletionItems: () => {
-      const suggestions = [
-        {
-          label: 'gg.alert',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.alert("message")',
-          documentation: 'Displays an alert dialog'
-        },
-        {
-          label: 'gg.toast',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.toast("message")',
-          documentation: 'Shows a toast message'
-        },
-        {
-          label: 'gg.sleep',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.sleep(1000)',
-          documentation: 'Pauses execution for a given number of milliseconds'
-        },
-        {
-          label: 'gg.setRanges',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.setRanges(gg.REGION_ANONYMOUS)',
-          documentation: 'Sets the memory region to scan'
-        },
-        {
-          label: 'gg.getResults',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.getResults(100)',
-          documentation: 'Returns scan results'
-        },
-        {
-          label: 'gg.searchNumber',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.searchNumber("100", gg.TYPE_DWORD)',
-          documentation: 'Searches memory for a number'
-        },
-        {
-          label: 'gg.clearResults',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.clearResults()',
-          documentation: 'Clears previous scan results'
-        },
-        {
-          label: 'gg.setVisible',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.setVisible(false)',
-          documentation: 'Shows or hides the GG UI'
-        },
-        {
-          label: 'gg.choice',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.choice({ "Option 1", "Option 2" })',
-          documentation: 'Displays a multiple choice menu'
-        },
-        {
-          label: 'gg.multiChoice',
-          kind: monaco.languages.CompletionItemKind.Function,
-          insertText: 'gg.multiChoice({ "Option 1", "Option 2" }, nil, "Select options")',
-          documentation: 'Displays a multi-select dialog'
-        }
-      ];
-      return { suggestions };
-    }
-  });
-});
-</script>
-<script>
-let page = 1;
+  </script>
+  <script>
+   let page = 1;
 function updatePages() {
   const total = 11;
   for (let i = 1; i <= total; i++) {
@@ -2706,10 +3203,9 @@ function prevTutorial() {
   if (page > 1) page -= 1;
   updatePages();
 }
-</script>
-
-<script>
-function launchTutorial() {
+  </script>
+  <script>
+   function launchTutorial() {
   document.getElementById('entryPopup').remove();
   document.getElementById('introOverlay').style.display = 'flex';
 }
@@ -2719,6 +3215,68 @@ function skipTutorial() {
   if (overlay) overlay.remove();
   if (popup) popup.remove();
 }
+  </script>
+  <!-- Obfuscated Custom Code -->
+  <script>
+   (function() {
+  // Disable context menu
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+  // Block F12, Ctrl+Shift+I/C, Ctrl+Shift+J
+  document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 123 || 
+        (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67))) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // Prevent easy resizing detection removal of resize listener only
+  // (Other anti-bot checks unchanged)
+})();
+  </script>
+ 
+<script>
+window.addEventListener('load', function () {
+  require(['vs/editor/editor.main'], function () {
+    monaco.languages.registerCompletionItemProvider('lua', {
+      provideCompletionItems: () => {
+        const suggestions = [
+          { label: 'gg.alert', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.alert("${1:message}")', documentation: 'Displays an alert dialog' },
+          { label: 'gg.toast', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.toast("${1:message}")', documentation: 'Shows a toast message' },
+          { label: 'gg.prompt', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.prompt("${1:Prompt}", "${2:Default}")', documentation: 'Displays a prompt dialog' },
+          { label: 'gg.choice', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.choice({ "${1:Option1}", "${2:Option2}" }, nil, "${3:Prompt}")', documentation: 'Displays a choice menu' },
+          { label: 'gg.multiChoice', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.multiChoice({ "${1:Option1}", "${2:Option2}" }, nil, "${3:Prompt}")', documentation: 'Displays a multi-select dialog' },
+          { label: 'gg.searchNumber', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.searchNumber("${1:number}", gg.${2:TYPE_DWORD})', documentation: 'Searches memory for a number' },
+          { label: 'gg.searchText', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.searchText("${1:text}")', documentation: 'Searches memory for text' },
+          { label: 'gg.searchPointer', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.searchPointer("${1:address}")', documentation: 'Searches memory for a pointer' },
+          { label: 'gg.refineNumber', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.refineNumber("${1:number}")', documentation: 'Refines the number search results' },
+          { label: 'gg.refineText', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.refineText("${1:text}")', documentation: 'Refines the text search results' },
+          { label: 'gg.refinePointer', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.refinePointer("${1:address}")', documentation: 'Refines the pointer search results' },
+          { label: 'gg.getResults', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.getResults(${1:count})', documentation: 'Gets the search results' },
+          { label: 'gg.getResultsCount', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.getResultsCount()', documentation: 'Gets number of results' },
+          { label: 'gg.copyResults', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.copyResults(${1:count})', documentation: 'Copies results to clipboard' },
+          { label: 'gg.loadResults', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.loadResults("${1:filePath}")', documentation: 'Loads saved results' },
+          { label: 'gg.saveResults', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.saveResults("${1:filePath}")', documentation: 'Saves current results' },
+          { label: 'gg.editAll', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.editAll("${1:value}", gg.${2:TYPE_DWORD})', documentation: 'Edits all matching results' },
+          { label: 'gg.setValues', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.setValues(${1:valuesTable})', documentation: 'Sets specific values to results' },
+          { label: 'gg.clearResults', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.clearResults()', documentation: 'Clears search results' },
+          { label: 'gg.setRanges', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.setRanges(gg.${1:REGION_ANONYMOUS})', documentation: 'Sets memory scan ranges' },
+          { label: 'gg.getRanges', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.getRanges()', documentation: 'Lists current memory ranges' },
+          { label: 'gg.setVisible', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.setVisible(${1:false})', documentation: 'Shows or hides the GUI' },
+          { label: 'gg.run', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.run("${1:functionName}")', documentation: 'Runs a GG function' },
+          { label: 'gg.version', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.version()', documentation: 'Returns GG version' },
+          { label: 'gg.memoryInfo', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.memoryInfo()', documentation: 'Displays memory usage info' },
+          { label: 'gg.getTargetInfo', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.getTargetInfo()', documentation: 'Shows target app info' },
+          { label: 'gg.sleep', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.sleep(${1:milliseconds})', documentation: 'Pauses execution' },
+          { label: 'gg.menu', kind: monaco.languages.CompletionItemKind.Function, insertText: 'gg.menu({ "${1:Item1}", "${2:Item2}" }, "${3:Title}")', documentation: 'Displays a menu' }
+        ];
+        return { suggestions };
+      }
+    });
+  });
+});
 </script>
+
 </body>
 </html>
