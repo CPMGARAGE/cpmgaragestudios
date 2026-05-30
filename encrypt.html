@@ -309,10 +309,10 @@ const tojs = fengari.to_jsstring;
     }
   </script>
 
-  <script type="application/lua" id="ethanLabs-lua">
-    ethanLabs = {}
+  <script type="application/lua" id="cpmGarage-lua">
+    cpmGarage = {}
 
-    function ethanLabs.encode(input, key)
+    function cpmGarage.encode(input, key)
       local output = {}
       for i = 1, #input do
         local c = input:byte(i)
@@ -322,8 +322,8 @@ const tojs = fengari.to_jsstring;
       return table.concat(output)
     end
 
-    function ethanLabs.decode(input, key)
-      return ethanLabs.encode(input, key)
+    function cpmGarage.decode(input, key)
+      return cpmGarage.encode(input, key)
     end
   </script>
 
@@ -351,14 +351,14 @@ const tojs = fengari.to_jsstring;
       }).join("");
 
       logStatus("Loading Lua logic...");
-      const luaCode = document.getElementById("ethanLabs-lua").textContent;
+      const luaCode = document.getElementById("cpmGarage-lua").textContent;
       const L = fengari.lauxlib.luaL_newstate();
       fengari.lualib.luaL_openlibs(L);
       fengari.lauxlib.luaL_dostring(L, to_luastring(luaCode));
       progressBar.style.width = "40%";
 
       logStatus((mode === 'encode' ? "Encrypting..." : "Decrypting..."));
-      fengari.lua.lua_getglobal(L, "ethanLabs");
+      fengari.lua.lua_getglobal(L, "cpmGarage");
 fengari.lua.lua_getfield(L, -1, mode === 'encode' ? 'encode' : 'decode');
 fengari.lua.lua_pushstring(L, to_luastring(content));
 fengari.lua.lua_pushstring(L, to_luastring(password));
